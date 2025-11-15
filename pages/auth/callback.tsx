@@ -7,83 +7,74 @@ export default function AuthCallback() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let redirected = false;
+
     // Handle the OAuth callback
     const handleCallback = async () => {
       try {
-        // Check if we have a code or error in the URL
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        // Check for errors in URL
         const queryParams = new URLSearchParams(window.location.search);
-
-        const code = queryParams.get('code');
         const error_code = queryParams.get('error');
         const error_description = queryParams.get('error_description');
 
-        // If there's an error in the URL, show it
         if (error_code) {
           console.error('OAuth error:', error_code, error_description);
           setError(error_description || 'Authentication failed. Please try again.');
           setTimeout(() => {
-            window.location.href = '/login?error=auth_failed';
+            if (!redirected) {
+              redirected = true;
+              window.location.href = '/login?error=auth_failed';
+            }
           }, 2000);
           return;
         }
 
-        // If there's a code, exchange it for a session
-        if (code) {
-          console.log('Found authorization code, exchanging for session...');
+        console.log('Waiting for authentication to complete...');
 
-          // Exchange the code for a session
-          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+        // Wait a bit for Supabase to automatically handle the PKCE code exchange
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
-          if (exchangeError) {
-            console.error('Code exchange error:', exchangeError);
-            setError('Authentication failed. Please try again.');
-            setTimeout(() => {
-              window.location.href = '/login?error=auth_failed';
-            }, 2000);
-            return;
-          }
-
-          if (data?.session?.user) {
-            const email = data.session.user.email;
-            const provider = data.session.user.app_metadata?.provider;
-
-            console.log('Auth callback - User:', email, 'Provider:', provider);
-
-            // Successfully authenticated, redirect to home
-            console.log('Auth successful, redirecting to home...');
-            window.location.href = '/';
-            return;
-          }
-        }
-
-        // If we get here, check if we already have a session (in case of page refresh)
+        // Check if we have a session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
         if (sessionError) {
           console.error('Session error:', sessionError);
           setError('Authentication failed. Please try again.');
           setTimeout(() => {
-            window.location.href = '/login?error=auth_failed';
+            if (!redirected) {
+              redirected = true;
+              window.location.href = '/login?error=auth_failed';
+            }
           }, 2000);
           return;
         }
 
         if (session?.user) {
-          console.log('Existing session found, redirecting to home...');
-          window.location.href = '/';
+          console.log('Auth successful! User:', session.user.email);
+          console.log('Redirecting to home page...');
+          
+          // Ensure redirect happens
+          if (!redirected) {
+            redirected = true;
+            window.location.href = '/';
+          }
         } else {
-          // No session found, redirect to login
           console.log('No session found, redirecting to login');
           setTimeout(() => {
-            window.location.href = '/login';
+            if (!redirected) {
+              redirected = true;
+              window.location.href = '/login';
+            }
           }, 1000);
         }
       } catch (err) {
         console.error('Callback error:', err);
         setError('An unexpected error occurred.');
         setTimeout(() => {
-          window.location.href = '/login?error=auth_failed';
+          if (!redirected) {
+            redirected = true;
+            window.location.href = '/login?error=auth_failed';
+          }
         }, 2000);
       }
     };
@@ -92,7 +83,12 @@ export default function AuthCallback() {
     if (typeof window !== 'undefined') {
       handleCallback();
     }
-  }, [router]);
+
+    // Cleanup to prevent redirect after unmount
+    return () => {
+      redirected = true;
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-primary-900 to-secondary-900 flex items-center justify-center">
