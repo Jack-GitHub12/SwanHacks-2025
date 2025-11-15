@@ -10,8 +10,54 @@ export default function AuthCallback() {
     // Handle the OAuth callback
     const handleCallback = async () => {
       try {
-        // Supabase automatically handles the OAuth callback and exchanges the code
-        // We just need to wait for it to complete
+        // Check if we have a code or error in the URL
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const queryParams = new URLSearchParams(window.location.search);
+
+        const code = queryParams.get('code');
+        const error_code = queryParams.get('error');
+        const error_description = queryParams.get('error_description');
+
+        // If there's an error in the URL, show it
+        if (error_code) {
+          console.error('OAuth error:', error_code, error_description);
+          setError(error_description || 'Authentication failed. Please try again.');
+          setTimeout(() => {
+            window.location.href = '/login?error=auth_failed';
+          }, 2000);
+          return;
+        }
+
+        // If there's a code, exchange it for a session
+        if (code) {
+          console.log('Found authorization code, exchanging for session...');
+
+          // Exchange the code for a session
+          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+
+          if (exchangeError) {
+            console.error('Code exchange error:', exchangeError);
+            setError('Authentication failed. Please try again.');
+            setTimeout(() => {
+              window.location.href = '/login?error=auth_failed';
+            }, 2000);
+            return;
+          }
+
+          if (data?.session?.user) {
+            const email = data.session.user.email;
+            const provider = data.session.user.app_metadata?.provider;
+
+            console.log('Auth callback - User:', email, 'Provider:', provider);
+
+            // Successfully authenticated, redirect to home
+            console.log('Auth successful, redirecting to home...');
+            window.location.href = '/';
+            return;
+          }
+        }
+
+        // If we get here, check if we already have a session (in case of page refresh)
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
         if (sessionError) {
@@ -24,13 +70,7 @@ export default function AuthCallback() {
         }
 
         if (session?.user) {
-          const email = session.user.email;
-          const provider = session.user.app_metadata?.provider;
-
-          console.log('Auth callback - User:', email, 'Provider:', provider);
-
-          // Successfully authenticated, redirect to home
-          console.log('Auth successful, redirecting to home...');
+          console.log('Existing session found, redirecting to home...');
           window.location.href = '/';
         } else {
           // No session found, redirect to login
