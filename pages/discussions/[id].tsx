@@ -24,7 +24,8 @@ const DEMO_DISCUSSION: Discussion = {
   status: 'pinned',
   views: 124,
   reply_count: 3,
-  author_email: 'cyclist@iastate.edu',
+  author_username: 'cyclist',
+  author_name: 'ISU Cyclist',
 };
 
 const DEMO_REPLIES: DiscussionReply[] = [
@@ -35,7 +36,8 @@ const DEMO_REPLIES: DiscussionReply[] = [
     discussion_id: '1',
     user_id: '2',
     content: 'This sounds great! I\'ve been wanting to get into cycling. Do I need to bring my own bike?',
-    author_email: 'student1@iastate.edu',
+    author_username: 'student1',
+    author_name: 'Curious Student',
   },
   {
     id: '2',
@@ -44,7 +46,8 @@ const DEMO_REPLIES: DiscussionReply[] = [
     discussion_id: '1',
     user_id: '1',
     content: 'Yes, you\'ll need your own bike. But if you don\'t have one yet, come to our Wednesday meetup and we can help you find a good starter bike!',
-    author_email: 'cyclist@iastate.edu',
+    author_username: 'cyclist',
+    author_name: 'ISU Cyclist',
     parent_reply_id: '1',
   },
   {
@@ -54,7 +57,8 @@ const DEMO_REPLIES: DiscussionReply[] = [
     discussion_id: '1',
     user_id: '3',
     content: 'I\'m definitely interested! See you Saturday!',
-    author_email: 'newbie@iastate.edu',
+    author_username: 'newbie',
+    author_name: 'New Rider',
   },
 ];
 
@@ -158,7 +162,8 @@ export default function DiscussionDetail() {
           discussion_id: id as string,
           user_id: user?.id || 'demo-user',
           content: replyContent,
-          author_email: user?.email || 'demo@iastate.edu',
+          author_username: user?.email?.split('@')[0] || 'demo_user',
+          author_name: user?.email?.split('@')[0] || 'Demo User',
           parent_reply_id: replyingTo || undefined,
         };
         setReplies([...replies, newReply]);

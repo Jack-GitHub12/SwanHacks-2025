@@ -35,7 +35,7 @@ const DEMO_EVENTS: Discussion[] = [
     event_time: '6:00 PM',
     event_end_time: '8:30 PM',
     event_location: 'Coover Hall, Room 2245',
-    author_email: 'ieee_president@iastate.edu',
+    author_username: 'ieee_president', author_name: 'ISU Student',
   },
   {
     id: 'e2',
@@ -55,7 +55,7 @@ const DEMO_EVENTS: Discussion[] = [
     event_time: '7:00 PM',
     event_end_time: '9:00 PM',
     event_location: 'Memorial Union, Great Hall',
-    author_email: 'ieee_vicepresident@iastate.edu',
+    author_username: 'ieee_vicepresident', author_name: 'ISU Student',
   },
 
   // Vietnamese Student Association Events
@@ -77,7 +77,7 @@ const DEMO_EVENTS: Discussion[] = [
     event_time: '5:00 PM',
     event_end_time: '9:00 PM',
     event_location: 'Memorial Union, Sun Room',
-    author_email: 'vsa_events@iastate.edu',
+    author_username: 'vsa_events', author_name: 'ISU Student',
   },
   {
     id: 'e4',
@@ -97,7 +97,7 @@ const DEMO_EVENTS: Discussion[] = [
     event_time: '7:30 PM',
     event_end_time: '10:00 PM',
     event_location: 'Memorial Union, Cardinal Room',
-    author_email: 'vsa_social@iastate.edu',
+    author_username: 'vsa_social', author_name: 'ISU Student',
   },
 
   // Holiday Events
@@ -119,7 +119,7 @@ const DEMO_EVENTS: Discussion[] = [
     event_time: '3:00 PM',
     event_end_time: '7:00 PM',
     event_location: 'Maple-Willow-Larch Commons',
-    author_email: 'rha_events@iastate.edu',
+    author_username: 'rha_events', author_name: 'ISU Student',
   },
   {
     id: 'e6',
@@ -139,7 +139,7 @@ const DEMO_EVENTS: Discussion[] = [
     event_time: '9:00 AM',
     event_end_time: '2:00 PM',
     event_location: 'Meet at Memorial Union',
-    author_email: 'community_engagement@iastate.edu',
+    author_username: 'community_engagement', author_name: 'ISU Student',
   },
 
   // Dorm Events
@@ -161,7 +161,7 @@ const DEMO_EVENTS: Discussion[] = [
     event_time: '7:00 PM',
     event_end_time: '11:00 PM',
     event_location: 'Friley Hall, Main Lounge',
-    author_email: 'friley_ca@iastate.edu',
+    author_username: 'friley_ca', author_name: 'ISU Student',
   },
   {
     id: 'e8',
@@ -181,7 +181,7 @@ const DEMO_EVENTS: Discussion[] = [
     event_time: '10:00 PM',
     event_end_time: '12:00 AM',
     event_location: 'Towers Dining Center',
-    author_email: 'towers_ra@iastate.edu',
+    author_username: 'towers_ra', author_name: 'ISU Student',
   },
 
   // More Campus Events
@@ -203,7 +203,7 @@ const DEMO_EVENTS: Discussion[] = [
     event_time: '6:00 PM',
     event_end_time: '9:30 PM',
     event_location: 'Great Hall, Memorial Union',
-    author_email: 'intl_council@iastate.edu',
+    author_username: 'intl_council', author_name: 'ISU Student',
   },
   {
     id: 'e10',
@@ -223,7 +223,7 @@ const DEMO_EVENTS: Discussion[] = [
     event_time: '6:30 PM',
     event_end_time: '10:00 PM',
     event_location: 'Maple Hall, Game Room',
-    author_email: 'maple_gaming@iastate.edu',
+    author_username: 'maple_gaming', author_name: 'ISU Student',
   },
   {
     id: 'e11',
@@ -243,7 +243,7 @@ const DEMO_EVENTS: Discussion[] = [
     event_time: '5:30 PM',
     event_end_time: '7:30 PM',
     event_location: 'Coover Hall, Lab 3050',
-    author_email: 'ieee_workshops@iastate.edu',
+    author_username: 'ieee_workshops', author_name: 'ISU Student',
     event_tags: ['open'],
   },
   {
@@ -264,7 +264,7 @@ const DEMO_EVENTS: Discussion[] = [
     event_time: '7:00 PM',
     event_end_time: '9:00 PM',
     event_location: 'Memorial Union, Gallery',
-    author_email: 'sub_social@iastate.edu',
+    author_username: 'sub_social', author_name: 'ISU Student',
   },
   {
     id: 'e13',
@@ -284,7 +284,7 @@ const DEMO_EVENTS: Discussion[] = [
     event_time: '6:00 PM',
     event_end_time: '8:30 PM',
     event_location: 'Memorial Union, Food Court Area',
-    author_email: 'vsa_fundraising@iastate.edu',
+    author_username: 'vsa_fundraising', author_name: 'ISU Student',
     event_tags: ['open'],
   },
   // Add a TBD date event
@@ -306,7 +306,7 @@ const DEMO_EVENTS: Discussion[] = [
     event_time: undefined,
     event_end_time: undefined,
     event_location: 'Location TBD',
-    author_email: 'vsa_events@iastate.edu',
+    author_username: 'vsa_events', author_name: 'ISU Student',
     event_tags: ['open'],
   },
   // Add an expired event example
@@ -328,7 +328,7 @@ const DEMO_EVENTS: Discussion[] = [
     event_time: '6:00 PM',
     event_end_time: '7:30 PM',
     event_location: 'Coover Hall, Room 2245',
-    author_email: 'ieee_president@iastate.edu',
+    author_username: 'ieee_president', author_name: 'ISU Student',
     event_tags: ['expired'],
   },
   {
@@ -349,7 +349,7 @@ const DEMO_EVENTS: Discussion[] = [
     event_time: '8:00 AM',
     event_end_time: '10:00 AM',
     event_location: 'Start at Central Campus',
-    author_email: 'campus_recreation@iastate.edu',
+    author_username: 'campus_recreation', author_name: 'ISU Student',
   },
   {
     id: 'e15',
@@ -369,7 +369,7 @@ const DEMO_EVENTS: Discussion[] = [
     event_time: '5:00 PM',
     event_end_time: '10:00 PM',
     event_location: 'Friley Hall, Main Lounge',
-    author_email: 'friley_events@iastate.edu',
+    author_username: 'friley_events', author_name: 'ISU Student',
   },
   {
     id: 'e16',
@@ -389,7 +389,7 @@ const DEMO_EVENTS: Discussion[] = [
     event_time: '4:00 PM',
     event_end_time: '7:00 PM',
     event_location: 'Coover Hall, Room 1118',
-    author_email: 'ieee_career@iastate.edu',
+    author_username: 'ieee_career', author_name: 'ISU Student',
   },
 ];
 

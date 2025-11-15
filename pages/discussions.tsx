@@ -25,7 +25,8 @@ const DEMO_DISCUSSIONS: Discussion[] = [
     status: 'pinned',
     views: 124,
     reply_count: 8,
-    author_email: 'cyclist@iastate.edu',
+    author_username: 'cyclist',
+    author_name: 'ISU Cyclist',
   },
   {
     id: '2',
@@ -38,7 +39,8 @@ const DEMO_DISCUSSIONS: Discussion[] = [
     status: 'active',
     views: 89,
     reply_count: 12,
-    author_email: 'student1@iastate.edu',
+    author_username: 'student1',
+    author_name: 'Event Enthusiast',
   },
   {
     id: '3',
@@ -51,7 +53,8 @@ const DEMO_DISCUSSIONS: Discussion[] = [
     status: 'active',
     views: 56,
     reply_count: 5,
-    author_email: 'cs_student@iastate.edu',
+    author_username: 'cs_student',
+    author_name: 'CS Major',
   },
   {
     id: '4',
@@ -64,7 +67,8 @@ const DEMO_DISCUSSIONS: Discussion[] = [
     status: 'active',
     views: 78,
     reply_count: 3,
-    author_email: 'housing_seeker@iastate.edu',
+    author_username: 'housing_seeker',
+    author_name: 'Roommate Finder',
   },
   {
     id: '5',
@@ -77,7 +81,8 @@ const DEMO_DISCUSSIONS: Discussion[] = [
     status: 'active',
     views: 143,
     reply_count: 15,
-    author_email: 'career_helper@iastate.edu',
+    author_username: 'career_helper',
+    author_name: 'Career Advisor',
   },
   {
     id: '6',
@@ -90,7 +95,8 @@ const DEMO_DISCUSSIONS: Discussion[] = [
     status: 'active',
     views: 92,
     reply_count: 18,
-    author_email: 'studious@iastate.edu',
+    author_username: 'studious',
+    author_name: 'Study Buddy',
   },
 ];
 
