@@ -57,7 +57,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshProfile = async () => {
     if (user?.id) {
-      await loadProfile(user.id);
+      // Check if demo user
+      const isDemoUser = typeof window !== 'undefined' && localStorage.getItem('isDemoUser') === 'true';
+
+      if (isDemoUser) {
+        // Reload demo profile from localStorage
+        const defaultDemoProfile = {
+          id: 'demo-user-id',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          username: 'demo',
+          display_name: 'Demo User',
+          avatar_url: undefined,
+        };
+
+        const savedProfile = getDemoProfile(defaultDemoProfile);
+        setProfile(savedProfile);
+      } else {
+        await loadProfile(user.id);
+      }
     }
   };
 
