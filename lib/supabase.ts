@@ -38,7 +38,7 @@ const customStorage = {
   },
 };
 
-// Initialize Supabase client with proper auth configuration
+// Initialize Supabase client with proper auth configuration and performance optimizations
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
@@ -47,6 +47,20 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     storage: customStorage,
     storageKey: 'sb-auth-token',
     flowType: 'pkce',
+  },
+  global: {
+    headers: {
+      'x-client-info': 'bookster-web',
+    },
+  },
+  db: {
+    schema: 'public',
+  },
+  // Enable connection pooling for better performance
+  realtime: {
+    params: {
+      eventsPerSecond: 10,
+    },
   },
 });
 

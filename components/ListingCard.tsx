@@ -24,36 +24,27 @@ const ListingCard: React.FC<ListingCardProps> = ({
   const isOwner = currentUserId && listing.user_id === currentUserId;
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{
-        duration: 0.4,
-        delay: index * 0.05,
-        ease: [0.4, 0, 0.2, 1]
+        duration: 0.2,
+        delay: Math.min(index * 0.03, 0.3), // Cap delay to avoid slow loads with many items
+        ease: "easeOut"
       }}
       whileHover={{
-        y: -12,
-        scale: 1.03,
-        transition: { duration: 0.3, ease: "easeOut" }
+        y: -8,
+        transition: { duration: 0.2 }
       }}
       className="card-enhanced p-6 relative overflow-hidden group cursor-pointer"
     >
-      {/* Animated gradient bar on top */}
-      <motion.div
-        className="absolute top-0 left-0 h-1 bg-gradient-to-r from-primary-600 to-secondary-600"
-        initial={{ width: 0 }}
-        whileInView={{ width: '100%' }}
-        transition={{ duration: 0.6, delay: index * 0.05 }}
-      />
+      {/* Static gradient bar on top - no animation for performance */}
+      <div className="absolute top-0 left-0 h-1 w-full bg-gradient-to-r from-primary-600 to-secondary-600" />
 
       {/* Course badge */}
       <Box mb={3}>
-        <motion.div
-          className="badge badge-primary inline-flex"
-          whileHover={{ scale: 1.05 }}
-        >
+        <div className="badge badge-primary inline-flex">
           {listing.course_code}
-        </motion.div>
+        </div>
       </Box>
 
       {/* Book title */}
@@ -69,22 +60,15 @@ const ListingCard: React.FC<ListingCardProps> = ({
       </Heading>
 
       {/* Price */}
-      <motion.div
-        className="text-3xl font-bold text-secondary-600 mb-3"
-        whileHover={{ scale: 1.1 }}
-        transition={{ type: "spring", stiffness: 400 }}
-      >
+      <div className="text-3xl font-bold text-secondary-600 mb-3">
         ${listing.price.toFixed(2)}
-      </motion.div>
+      </div>
 
       {/* Condition */}
       {listing.condition && (
-        <motion.div
-          className="inline-block px-3 py-1.5 bg-gradient-to-r from-gray-100 to-gray-50 text-gray-700 text-sm rounded-full mb-3 border border-gray-200"
-          whileHover={{ scale: 1.05 }}
-        >
+        <div className="inline-block px-3 py-1.5 bg-gradient-to-r from-gray-100 to-gray-50 text-gray-700 text-sm rounded-full mb-3 border border-gray-200">
           <Text as="span" fontWeight="medium">Condition:</Text> {listing.condition}
-        </motion.div>
+        </div>
       )}
 
       {/* Notes */}
@@ -144,17 +128,8 @@ const ListingCard: React.FC<ListingCardProps> = ({
         )}
       </Flex>
 
-      {/* Hover shine effect */}
-      <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-        initial={{ x: '-100%' }}
-        whileHover={{ x: '100%' }}
-        transition={{ duration: 0.8 }}
-        style={{ pointerEvents: 'none' }}
-      />
-      
-      {/* Glow effect on hover */}
-      <motion.div
+      {/* Simplified glow effect on hover - CSS only for better performance */}
+      <div
         className="absolute inset-0 bg-gradient-to-br from-primary-500/0 via-secondary-500/0 to-primary-500/0 opacity-0 group-hover:opacity-10 transition-opacity duration-300"
         style={{ pointerEvents: 'none' }}
       />

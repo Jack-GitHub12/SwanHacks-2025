@@ -2,15 +2,18 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import ListingCard from '@/components/ListingCard';
-import ContactModal from '@/components/ContactModal';
 import CategoryFilter from '@/components/CategoryFilter';
 import { supabase, DEMO_MODE, DEMO_LISTINGS } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import { getCoursesByDepartment } from '@/lib/categories';
 import Logo from '@/components/Logo';
 import type { Listing, SortOption } from '@/types';
+
+// Lazy load heavy components for better initial page load
+const ContactModal = dynamic(() => import('@/components/ContactModal'), { ssr: false });
 
 export default function Browse() {
   const router = useRouter();
@@ -50,11 +53,13 @@ export default function Browse() {
       if (DEMO_MODE) {
         setListings(DEMO_LISTINGS);
       } else {
+        // Optimized query: Select only needed columns and limit results
         const { data, error } = await supabase
           .from('listings')
-          .select('*')
+          .select('id, created_at, course_code, book_title, price, contact_info, condition, notes, status, user_id')
           .eq('status', 'active')
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false })
+          .limit(100); // Limit to 100 most recent listings for faster loading
 
         if (error) throw error;
         setListings(data || []);
@@ -226,19 +231,14 @@ export default function Browse() {
 
         {/* Enhanced Search & Filter Bar */}
         <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
           className="glass-enhanced border border-gray-200/50 rounded-2xl mx-4 my-4 py-8"
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Search Bar */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3 }}
-              className="mb-6"
-            >
+            <div className="mb-6">
               <div className="relative max-w-2xl mx-auto">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <svg className="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -253,19 +253,17 @@ export default function Browse() {
                   className="input-enhanced w-full pl-12 pr-4"
                 />
                 {searchQuery && (
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                  <button
                     onClick={() => setSearchQuery('')}
                     className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
                   >
                     <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                  </motion.button>
+                  </button>
                 )}
               </div>
-            </motion.div>
+            </div>
 
             {/* Enhanced Category Filter */}
             <CategoryFilter

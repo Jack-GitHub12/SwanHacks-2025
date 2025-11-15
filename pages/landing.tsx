@@ -590,3 +590,11 @@ export default function Landing() {
   );
 }
 
+// Enable ISR (Incremental Static Regeneration) for faster page loads
+export async function getStaticProps() {
+  return {
+    props: {},
+    revalidate: 3600, // Revalidate every hour
+  };
+}
+
