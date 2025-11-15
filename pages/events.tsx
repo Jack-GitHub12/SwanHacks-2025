@@ -340,21 +340,50 @@ export default function Events() {
   }, [events, sortBy, showExpired]);
 
   const loadEvents = async () => {
+    // Set a timeout to prevent infinite loading
+    const loadTimeout = setTimeout(() => {
+      console.warn('Events loading timeout - falling back to demo data');
+      setEvents(DEMO_EVENTS);
+      setLoading(false);
+    }, 5000);
+
     try {
       if (DEMO_MODE) {
+        console.log('Using DEMO_MODE for events');
+        clearTimeout(loadTimeout);
+        setEvents(DEMO_EVENTS);
+        setLoading(false);
+        return;
+      }
+
+      console.log('Fetching events from Supabase...');
+      const { data, error } = await supabase
+        .from('events_feed')
+        .select('*');
+
+      clearTimeout(loadTimeout);
+
+      if (error) {
+        console.error('Supabase events error:', error);
+        throw error;
+      }
+
+      console.log('Events loaded:', data?.length || 0);
+      
+      // If no data, use demo events
+      if (!data || data.length === 0) {
+        console.warn('No events found - using demo data');
         setEvents(DEMO_EVENTS);
       } else {
-        const { data, error } = await supabase
-          .from('events_feed')
-          .select('*');
-
-        if (error) throw error;
-        setEvents(data || []);
+        setEvents(data);
       }
     } catch (error) {
+      clearTimeout(loadTimeout);
       console.error('Error loading events:', error);
+      console.log('Falling back to DEMO_EVENTS');
       setEvents(DEMO_EVENTS);
     } finally {
+      clearTimeout(loadTimeout);
       setLoading(false);
     }
   };

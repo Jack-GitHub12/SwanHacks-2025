@@ -130,22 +130,51 @@ export default function Discussions() {
   }, [discussions, selectedCategory, searchQuery]);
 
   const loadDiscussions = async () => {
+    // Set a timeout to prevent infinite loading
+    const loadTimeout = setTimeout(() => {
+      console.warn('Discussions loading timeout - falling back to demo data');
+      setDiscussions(DEMO_DISCUSSIONS);
+      setLoading(false);
+    }, 5000);
+
     try {
       if (DEMO_MODE) {
+        console.log('Using DEMO_MODE for discussions');
+        clearTimeout(loadTimeout);
+        setDiscussions(DEMO_DISCUSSIONS);
+        setLoading(false);
+        return;
+      }
+
+      console.log('Fetching discussions from Supabase...');
+      const { data, error } = await supabase
+        .from('discussions_with_user')
+        .select('*')
+        .order('updated_at', { ascending: false });
+
+      clearTimeout(loadTimeout);
+
+      if (error) {
+        console.error('Supabase discussions error:', error);
+        throw error;
+      }
+
+      console.log('Discussions loaded:', data?.length || 0);
+      
+      // If no data, use demo discussions
+      if (!data || data.length === 0) {
+        console.warn('No discussions found - using demo data');
         setDiscussions(DEMO_DISCUSSIONS);
       } else {
-        const { data, error } = await supabase
-          .from('discussions_with_user')
-          .select('*')
-          .order('updated_at', { ascending: false });
-
-        if (error) throw error;
-        setDiscussions(data || []);
+        setDiscussions(data);
       }
     } catch (error) {
+      clearTimeout(loadTimeout);
       console.error('Error loading discussions:', error);
+      console.log('Falling back to DEMO_DISCUSSIONS');
       setDiscussions(DEMO_DISCUSSIONS);
     } finally {
+      clearTimeout(loadTimeout);
       setLoading(false);
     }
   };
