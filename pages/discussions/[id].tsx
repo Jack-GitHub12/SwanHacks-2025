@@ -6,6 +6,7 @@ import { Box, Flex, Heading, Text, Button, Badge } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import VoteButtons from '@/components/VoteButtons';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase, DEMO_MODE } from '@/lib/supabase';
 import { getCategoryColor, getCategoryName } from '@/lib/discussions';
@@ -363,6 +364,31 @@ export default function DiscussionDetail() {
               <Box fontSize="md" color="gray.700" className="whitespace-pre-wrap" mb={6}>
                 {discussion.content}
               </Box>
+
+              {/* Voting Section - Highly Visible */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3 }}
+                className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 mb-6 border-2 border-blue-200 shadow-md"
+              >
+                <Flex direction={{ base: 'column', md: 'row' }} gap={4} align={{ base: 'start', md: 'center' }} justify="space-between">
+                  <Box>
+                    <Text fontSize="lg" fontWeight="bold" color="gray.900" mb={1}>
+                      What do you think about this discussion?
+                    </Text>
+                    <Text fontSize="sm" color="gray.600">
+                      Vote to show your opinion on this topic
+                    </Text>
+                  </Box>
+                  <VoteButtons
+                    discussionId={discussion.id}
+                    initialUpvotes={discussion.upvotes || 0}
+                    initialDownvotes={discussion.downvotes || 0}
+                    initialVoteScore={discussion.vote_score || 0}
+                  />
+                </Flex>
+              </motion.div>
 
               {/* Event Details & Calendar Button (for events category) */}
               {discussion.category === 'events' && discussion.event_date && discussion.event_time && (
