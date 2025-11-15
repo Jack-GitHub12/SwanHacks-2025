@@ -51,9 +51,9 @@ export default function AuthCallback() {
 
         if (session?.user && !redirected) {
           console.log('Session already exists! User:', session.user.email);
-          console.log('Redirecting to home page...');
+          console.log('Redirecting to marketplace...');
           redirected = true;
-          window.location.href = '/';
+          window.location.href = '/marketplace';
         }
 
         // Fallback: if no session after 3 seconds, redirect to login
