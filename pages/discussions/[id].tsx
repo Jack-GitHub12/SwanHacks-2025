@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase, DEMO_MODE } from '@/lib/supabase';
 import { getCategoryColor, getCategoryName } from '@/lib/discussions';
 import { formatDate, generateGoogleCalendarLink } from '@/lib/utils';
+import { getDemoReplies, addDemoReply } from '@/lib/demoStorage';
 import type { Discussion, DiscussionReply } from '@/types/discussions';
 
 // Demo data for testing
@@ -121,7 +122,14 @@ export default function DiscussionDetail() {
   const loadReplies = async () => {
     try {
       if (DEMO_MODE) {
-        setReplies(DEMO_REPLIES);
+        // Load replies from session storage (persists during session)
+        const sessionReplies = getDemoReplies(discussionId, DEMO_REPLIES);
+        setReplies(sessionReplies);
+        
+        // Update reply count to match actual replies
+        if (discussion) {
+          setDiscussion({ ...discussion, reply_count: sessionReplies.length });
+        }
       } else {
         const { data, error } = await supabase
           .from('discussion_replies_with_user')
@@ -157,21 +165,26 @@ export default function DiscussionDetail() {
       if (DEMO_MODE) {
         await new Promise(resolve => setTimeout(resolve, 500));
         const newReply: DiscussionReply = {
-          id: String(Date.now()),
+          id: `demo-${Date.now()}`,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           discussion_id: id as string,
           user_id: user?.id || 'demo-user',
           content: replyContent,
-          author_username: user?.email?.split('@')[0] || 'demo_user',
-          author_name: user?.email?.split('@')[0] || 'Demo User',
+          author_username: user?.email?.split('@')[0] || 'You',
+          author_name: user?.email?.split('@')[0] || 'You',
           parent_reply_id: replyingTo || undefined,
         };
-        setReplies([...replies, newReply]);
-        // Update discussion reply count in demo mode
+        
+        // Save to session storage so it persists
+        const updatedReplies = addDemoReply(id as string, newReply, DEMO_REPLIES);
+        setReplies(updatedReplies);
+        
+        // Update discussion reply count to match
         if (discussion) {
-          setDiscussion({ ...discussion, reply_count: (discussion.reply_count || 0) + 1 });
+          setDiscussion({ ...discussion, reply_count: updatedReplies.length });
         }
+        
         setReplyContent('');
         setReplyingTo(null);
       } else {

@@ -7,6 +7,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase, DEMO_MODE } from '@/lib/supabase';
+import { getDemoProfile, setDemoProfile } from '@/lib/demoStorage';
 import type { UserProfile, UpdateProfileData } from '@/types/profile';
 
 export default function Profile() {
@@ -46,7 +47,7 @@ export default function Profile() {
     if (!user) return;
 
     try {
-      // INSTANTLY show default profile to user
+      // INSTANTLY show profile (from session storage or default)
       const defaultProfile = {
         username: user.email?.split('@')[0] || '',
         display_name: user.email?.split('@')[0] || 'User',
@@ -56,14 +57,18 @@ export default function Profile() {
         graduation_year: undefined,
       };
       
+      if (DEMO_MODE) {
+        // Load from session storage if exists
+        const savedProfile = getDemoProfile(defaultProfile);
+        setFormData(savedProfile);
+        setIsLoading(false);
+        console.log('DEMO_MODE enabled - loaded from session storage');
+        return;
+      }
+      
       setFormData(defaultProfile);
       setIsLoading(false);
       console.log('Showing default profile instantly');
-
-      if (DEMO_MODE) {
-        console.log('DEMO_MODE enabled - keeping default profile');
-        return;
-      }
 
       console.log('Attempting to fetch real profile from Supabase...');
       const { data, error } = await supabase
@@ -130,8 +135,13 @@ export default function Profile() {
     try {
       if (DEMO_MODE) {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        setFormData({ ...formData, avatar_url: URL.createObjectURL(selectedFile) });
-        setMessage('Image uploaded! (Demo mode)');
+        const avatarUrl = URL.createObjectURL(selectedFile);
+        setFormData({ ...formData, avatar_url: avatarUrl });
+        // Save to session storage so it persists!
+        setDemoProfile({ ...formData, avatar_url: avatarUrl });
+        setMessage('Image uploaded! (Demo mode - persists this session)');
+        setSelectedFile(null);
+        setPreviewUrl('');
         setIsUploading(false);
         return;
       }
@@ -191,7 +201,11 @@ export default function Profile() {
 
       if (DEMO_MODE) {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        setMessage('Profile updated! (Demo mode)');
+        
+        // Save to session storage so it persists
+        setDemoProfile(formData);
+        
+        setMessage('Profile updated! Changes saved for this session.');
         setIsSaving(false);
         return;
       }

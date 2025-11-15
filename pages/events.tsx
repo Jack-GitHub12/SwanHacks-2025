@@ -341,14 +341,15 @@ export default function Events() {
 
   const loadEvents = async () => {
     try {
-      // INSTANTLY show demo data to user
-      setEvents(DEMO_EVENTS);
+      // INSTANTLY show demo events from session storage (includes user-created events!)
+      const sessionEvents = getDemoDiscussions(DEMO_EVENTS).filter(d => d.category === 'events' || d.event_date);
+      setEvents(sessionEvents);
       setLoading(false);
-      console.log('Showing demo events instantly');
+      console.log('Showing demo events instantly:', sessionEvents.length);
 
       // Then try to load real data in background
       if (DEMO_MODE) {
-        console.log('DEMO_MODE enabled - keeping demo data');
+        console.log('DEMO_MODE enabled - keeping session demo data');
         return;
       }
 

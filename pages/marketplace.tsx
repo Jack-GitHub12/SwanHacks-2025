@@ -7,6 +7,7 @@ import Header from '@/components/Header';
 import ListingCard from '@/components/ListingCard';
 import CategoryFilter from '@/components/CategoryFilter';
 import { supabase, DEMO_MODE, DEMO_LISTINGS } from '@/lib/supabase';
+import { getDemoListings, deleteDemoListing } from '@/lib/demoStorage';
 import { useAuth } from '@/contexts/AuthContext';
 import { getCoursesByDepartment } from '@/lib/categories';
 import type { Listing, SortOption } from '@/types';
@@ -58,16 +59,19 @@ export default function Home() {
 
   const loadListings = async () => {
     try {
-      // INSTANTLY show demo data to user
+      if (DEMO_MODE) {
+        // Load from session storage (includes user-created listings!)
+        const sessionListings = getDemoListings(DEMO_LISTINGS);
+        setListings(sessionListings);
+        setLoading(false);
+        console.log('DEMO_MODE enabled - loaded from session storage:', sessionListings.length, 'listings');
+        return;
+      }
+      
+      // Show demo data instantly first
       setListings(DEMO_LISTINGS);
       setLoading(false);
       console.log('Showing demo listings instantly');
-
-      // Then try to load real data in background
-      if (DEMO_MODE) {
-        console.log('DEMO_MODE enabled - keeping demo data');
-        return;
-      }
 
       console.log('Attempting to fetch real listings from Supabase...');
       
@@ -180,7 +184,10 @@ export default function Home() {
 
     try {
       if (DEMO_MODE) {
-        setListings(prev => prev.filter(l => l.id !== listingId));
+        // Delete from session storage so it stays deleted
+        const updatedListings = deleteDemoListing(listingId, DEMO_LISTINGS);
+        setListings(updatedListings);
+        alert('Listing deleted successfully! (Persists for this session)');
         return;
       }
 

@@ -7,8 +7,9 @@ import Footer from '@/components/Footer';
 import SuccessModal from '@/components/SuccessModal';
 import { supabase, DEMO_MODE, COURSE_CODES } from '@/lib/supabase';
 import { isValidCourseCode, isValidContact, formatCourseCode } from '@/lib/utils';
+import { addDemoListing } from '@/lib/demoStorage';
 import { useAuth } from '@/contexts/AuthContext';
-import type { FormData } from '@/types';
+import type { FormData, Listing } from '@/types';
 
 export default function Post() {
   const { user } = useAuth();
@@ -126,7 +127,8 @@ export default function Post() {
         throw new Error('You must be logged in to post a listing');
       }
 
-      const listingData = {
+      const listingData: Listing = {
+        id: `demo-${Date.now()}`,
         user_id: user?.id || null,
         course_code: formData.course_code.trim().toUpperCase(),
         book_title: formData.book_title.trim(),
@@ -141,6 +143,9 @@ export default function Post() {
       if (DEMO_MODE) {
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Save to session storage so it appears in marketplace!
+        addDemoListing(listingData, []);
       } else {
         const { error } = await supabase
           .from('listings')

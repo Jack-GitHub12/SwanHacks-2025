@@ -7,6 +7,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase, DEMO_MODE } from '@/lib/supabase';
+import { addDemoDiscussion } from '@/lib/demoStorage';
 import { DISCUSSION_CATEGORIES } from '@/lib/discussions';
 import type { CreateDiscussionData } from '@/types/discussions';
 
@@ -49,6 +50,27 @@ export default function NewDiscussion() {
     try {
       if (DEMO_MODE) {
         await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Create new discussion and save to session storage
+        const newDiscussion = {
+          id: `demo-${Date.now()}`,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          user_id: user?.id || 'demo-user',
+          ...formData,
+          status: 'active' as const,
+          views: 0,
+          reply_count: 0,
+          upvotes: 0,
+          downvotes: 0,
+          vote_score: 0,
+          author_username: user?.email?.split('@')[0] || 'You',
+          author_name: user?.email?.split('@')[0] || 'You',
+        };
+        
+        // Save to session storage so it appears in discussions list!
+        addDemoDiscussion(newDiscussion, []);
+        
         router.push('/discussions');
       } else {
         const { error: insertError } = await supabase

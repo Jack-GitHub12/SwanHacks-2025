@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { supabase, DEMO_MODE } from '@/lib/supabase';
+import { getDemoVote, setDemoVote } from '@/lib/demoStorage';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface VoteButtonsProps {
@@ -25,8 +26,14 @@ const VoteButtons: React.FC<VoteButtonsProps> = ({
   const [isVoting, setIsVoting] = useState(false);
 
   useEffect(() => {
-    if (user && !DEMO_MODE) {
-      loadUserVote();
+    if (user) {
+      if (DEMO_MODE) {
+        // Load vote from session storage
+        const savedVote = getDemoVote(discussionId);
+        setUserVote(savedVote);
+      } else {
+        loadUserVote();
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, discussionId]);
@@ -56,10 +63,11 @@ const VoteButtons: React.FC<VoteButtonsProps> = ({
 
     try {
       if (DEMO_MODE) {
-        // Demo mode - just update UI
+        // Demo mode - update UI and save to session storage
         if (userVote === voteType) {
           // Remove vote
           setUserVote(null);
+          setDemoVote(discussionId, null); // Save to session storage
           if (voteType === 'up') {
             setUpvotes(upvotes - 1);
             setVoteScore(voteScore - 1);
@@ -71,6 +79,7 @@ const VoteButtons: React.FC<VoteButtonsProps> = ({
           // Change or add vote
           const oldVote = userVote;
           setUserVote(voteType);
+          setDemoVote(discussionId, voteType); // Save to session storage
           
           if (voteType === 'up') {
             setUpvotes(oldVote === 'down' ? upvotes : upvotes + 1);
