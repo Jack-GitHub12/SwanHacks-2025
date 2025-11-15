@@ -43,9 +43,12 @@ export default function Home() {
   // Load listings after user is authenticated
   useEffect(() => {
     if (user) {
+      console.log('User authenticated, loading listings...');
       loadListings();
+    } else if (!authLoading) {
+      console.log('No user, redirecting to login');
     }
-  }, [user]);
+  }, [user, authLoading]);
 
   // Filter and sort whenever dependencies change
   useEffect(() => {
