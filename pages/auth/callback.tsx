@@ -9,6 +9,21 @@ export default function AuthCallback() {
     // Handle the OAuth callback
     const handleCallback = async () => {
       try {
+        // Check for OAuth code/error in URL
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const queryParams = new URLSearchParams(window.location.search);
+        
+        // If there's an error parameter, handle it
+        if (queryParams.get('error') || hashParams.get('error')) {
+          console.error('OAuth error:', queryParams.get('error_description') || hashParams.get('error_description'));
+          router.push('/login?error=auth_failed');
+          return;
+        }
+
+        // Exchange the code for a session (Supabase handles this automatically)
+        // Wait a bit for the session to be established
+        await new Promise(resolve => setTimeout(resolve, 500));
+
         // Get the current session after OAuth redirect
         const { data: { session }, error } = await supabase.auth.getSession();
 
@@ -30,8 +45,11 @@ export default function AuthCallback() {
             return;
           }
 
+          // Wait for the session to be fully stored
+          await new Promise(resolve => setTimeout(resolve, 300));
+
           // Successfully authenticated, redirect to home
-          router.push('/');
+          window.location.href = '/';
         } else {
           // No session found, redirect to login
           router.push('/login');
