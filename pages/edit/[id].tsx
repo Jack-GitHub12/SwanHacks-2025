@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { supabase, DEMO_MODE, COURSE_CODES } from '@/lib/supabase';
+import { supabase, DEMO_MODE, COURSE_CODES, DEMO_LISTINGS } from '@/lib/supabase';
 import { isValidCourseCode, isValidContact, formatCourseCode } from '@/lib/utils';
 import { getDemoListings, updateDemoListing } from '@/lib/demoStorage';
 import { useAuth } from '@/contexts/AuthContext';
@@ -45,7 +45,7 @@ export default function EditListing() {
     try {
       if (DEMO_MODE) {
         // Load from demo storage
-        const listings = getDemoListings([]);
+        const listings = getDemoListings(DEMO_LISTINGS);
         const listing = listings.find(l => l.id === id);
 
         if (!listing) {
@@ -199,7 +199,7 @@ export default function EditListing() {
           contact_info: formData.contact_info.trim(),
           condition: formData.condition || null,
           notes: formData.notes?.trim() || null,
-        }, []);
+        }, DEMO_LISTINGS);
 
         // Redirect to marketplace
         router.push('/marketplace');

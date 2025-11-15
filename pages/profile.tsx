@@ -142,7 +142,7 @@ export default function Profile() {
           setFormData(updatedFormData);
           // Save to localStorage so it persists across sessions!
           setDemoProfile(updatedFormData);
-          setMessage('Image uploaded and saved! (Demo mode - stored in browser)');
+          setMessage('Image uploaded successfully!');
           setSelectedFile(null);
           setPreviewUrl('');
           setIsUploading(false);
@@ -205,11 +205,12 @@ export default function Profile() {
 
       if (DEMO_MODE) {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         // Save to session storage so it persists
         setDemoProfile(formData);
-        
-        setMessage('Profile saved! (Demo mode - stored in browser)');
+
+        setMessage('Profile updated successfully!');
+        setTimeout(() => setMessage(''), 3000);
         setIsSaving(false);
         return;
       }

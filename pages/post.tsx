@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SuccessModal from '@/components/SuccessModal';
-import { supabase, DEMO_MODE, COURSE_CODES } from '@/lib/supabase';
+import { supabase, DEMO_MODE, COURSE_CODES, DEMO_LISTINGS } from '@/lib/supabase';
 import { isValidCourseCode, isValidContact, formatCourseCode } from '@/lib/utils';
 import { addDemoListing } from '@/lib/demoStorage';
 import { useAuth } from '@/contexts/AuthContext';
@@ -145,7 +145,7 @@ export default function Post() {
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         // Save to session storage so it appears in marketplace!
-        addDemoListing(listingData, []);
+        addDemoListing(listingData, DEMO_LISTINGS);
       } else {
         // For real database, don't include ID - let database generate it
         const listingData = {

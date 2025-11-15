@@ -62,6 +62,12 @@ export default function Home() {
       if (DEMO_MODE) {
         // Load from session storage (includes user-created listings!)
         const sessionListings = getDemoListings(DEMO_LISTINGS);
+
+        // If localStorage is empty, initialize it with demo data
+        if (typeof window !== 'undefined' && !localStorage.getItem('bookster_demo_listings')) {
+          localStorage.setItem('bookster_demo_listings', JSON.stringify(DEMO_LISTINGS));
+        }
+
         setListings(sessionListings);
         setLoading(false);
         console.log('DEMO_MODE enabled - loaded from session storage:', sessionListings.length, 'listings');
