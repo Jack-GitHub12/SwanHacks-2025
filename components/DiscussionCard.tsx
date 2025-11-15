@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Discussion } from '@/types/discussions';
 import { getCategoryColor, getCategoryName } from '@/lib/discussions';
 import { formatDate } from '@/lib/utils';
+import VoteButtons from './VoteButtons';
 
 interface DiscussionCardProps {
   discussion: Discussion;
@@ -93,6 +94,27 @@ const DiscussionCard: React.FC<DiscussionCardProps> = ({ discussion, index, onCl
           )}
         </Flex>
       </Flex>
+
+      {/* Voting Section - Visually Prominent */}
+      <Box 
+        mt={4} 
+        pt={4} 
+        borderTop="2px solid" 
+        borderColor="gray.200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <Flex justify="space-between" align="center">
+          <Text fontSize="sm" fontWeight="semibold" color="gray.700">
+            Vote on this discussion:
+          </Text>
+          <VoteButtons
+            discussionId={discussion.id}
+            initialUpvotes={discussion.upvotes || 0}
+            initialDownvotes={discussion.downvotes || 0}
+            initialVoteScore={discussion.vote_score || 0}
+          />
+        </Flex>
+      </Box>
 
       {/* Hover shine effect */}
       <motion.div

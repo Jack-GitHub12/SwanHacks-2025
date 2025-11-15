@@ -134,49 +134,55 @@ const VoteButtons: React.FC<VoteButtonsProps> = ({
   };
 
   return (
-    <Flex align="center" gap={2} className="bg-white/80 backdrop-blur-sm rounded-xl px-3 py-2 border border-gray-200">
+    <Flex align="center" gap={2} className="bg-gradient-to-r from-gray-50 to-white backdrop-blur-sm rounded-xl px-4 py-2 border-2 border-gray-300 shadow-md">
       {/* Upvote */}
       <motion.button
         onClick={() => handleVote('up')}
         disabled={isVoting}
-        className={`p-2 rounded-lg transition-all ${
+        className={`p-2.5 rounded-lg transition-all shadow-sm ${
           userVote === 'up'
-            ? 'bg-green-500 text-white'
-            : 'bg-gray-100 text-gray-600 hover:bg-green-100 hover:text-green-600'
+            ? 'bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg shadow-green-500/30'
+            : 'bg-white text-gray-600 hover:bg-green-50 hover:text-green-600 border-2 border-gray-200 hover:border-green-400'
         }`}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+        whileHover={{ scale: 1.15, y: -2 }}
+        whileTap={{ scale: 0.95 }}
       >
-        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
-          <path d="M7 11l5-5m0 0l5 5m-5-5v12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <svg className="w-5 h-5" viewBox="0 0 24 24" fill={userVote === 'up' ? 'currentColor' : 'none'}>
+          <path d="M7 11l5-5m0 0l5 5m-5-5v12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </motion.button>
 
-      {/* Score */}
-      <Text
-        fontSize="lg"
-        fontWeight="bold"
-        color={voteScore > 0 ? 'green.600' : voteScore < 0 ? 'red.600' : 'gray.600'}
-        minW="40px"
-        textAlign="center"
+      {/* Score - More Prominent */}
+      <motion.div
+        animate={{ scale: userVote ? [1, 1.2, 1] : 1 }}
+        transition={{ duration: 0.3 }}
       >
-        {voteScore > 0 ? '+' : ''}{voteScore}
-      </Text>
+        <Text
+          fontSize="xl"
+          fontWeight="black"
+          color={voteScore > 0 ? 'green.600' : voteScore < 0 ? 'red.600' : 'gray.700'}
+          minW="50px"
+          textAlign="center"
+          className="font-mono"
+        >
+          {voteScore > 0 ? '+' : ''}{voteScore}
+        </Text>
+      </motion.div>
 
       {/* Downvote */}
       <motion.button
         onClick={() => handleVote('down')}
         disabled={isVoting}
-        className={`p-2 rounded-lg transition-all ${
+        className={`p-2.5 rounded-lg transition-all shadow-sm ${
           userVote === 'down'
-            ? 'bg-red-500 text-white'
-            : 'bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-600'
+            ? 'bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg shadow-red-500/30'
+            : 'bg-white text-gray-600 hover:bg-red-50 hover:text-red-600 border-2 border-gray-200 hover:border-red-400'
         }`}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+        whileHover={{ scale: 1.15, y: -2 }}
+        whileTap={{ scale: 0.95 }}
       >
-        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
-          <path d="M17 13l-5 5m0 0l-5-5m5 5V6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        <svg className="w-5 h-5" viewBox="0 0 24 24" fill={userVote === 'down' ? 'currentColor' : 'none'}>
+          <path d="M17 13l-5 5m0 0l-5-5m5 5V6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       </motion.button>
     </Flex>
