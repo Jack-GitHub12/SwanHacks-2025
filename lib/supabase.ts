@@ -69,6 +69,7 @@ export const DEMO_LISTINGS: Listing[] = [
   // Computer Science
   {
     id: '1',
+    user_id: 'user-123',
     created_at: new Date(Date.now() - 86400000).toISOString(),
     course_code: 'CS 161',
     book_title: 'Introduction to Computer Science',
@@ -80,6 +81,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '2',
+    user_id: 'user-456',
     created_at: new Date(Date.now() - 172800000).toISOString(),
     course_code: 'CS 162',
     book_title: 'Object-Oriented Programming',
@@ -91,6 +93,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '3',
+    user_id: 'user-789',
     created_at: new Date(Date.now() - 259200000).toISOString(),
     course_code: 'CS 227',
     book_title: 'Data Structures and Algorithms',
@@ -102,6 +105,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '4',
+    user_id: 'user-234',
     created_at: new Date(Date.now() - 345600000).toISOString(),
     course_code: 'CS 228',
     book_title: 'Introduction to Data Structures',
@@ -113,6 +117,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '5',
+    user_id: 'user-567',
     created_at: new Date(Date.now() - 432000000).toISOString(),
     course_code: 'CS 261',
     book_title: 'Discrete Mathematics for CS',
@@ -124,6 +129,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '6',
+    user_id: 'user-890',
     created_at: new Date(Date.now() - 518400000).toISOString(),
     course_code: 'CS 311',
     book_title: 'Design and Analysis of Algorithms',
@@ -137,6 +143,7 @@ export const DEMO_LISTINGS: Listing[] = [
   // Mathematics
   {
     id: '7',
+    user_id: 'user-312',
     created_at: new Date(Date.now() - 604800000).toISOString(),
     course_code: 'MATH 165',
     book_title: 'Calculus I',
@@ -148,6 +155,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '8',
+    user_id: 'user-675',
     created_at: new Date(Date.now() - 691200000).toISOString(),
     course_code: 'MATH 166',
     book_title: 'Calculus II',
@@ -159,6 +167,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '9',
+    user_id: 'user-245',
     created_at: new Date(Date.now() - 777600000).toISOString(),
     course_code: 'MATH 265',
     book_title: 'Elementary Differential Equations',
@@ -170,6 +179,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '10',
+    user_id: 'user-307',
     created_at: new Date(Date.now() - 864000000).toISOString(),
     course_code: 'MATH 266',
     book_title: 'Linear Algebra',
@@ -181,6 +191,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '11',
+    user_id: 'user-271',
     created_at: new Date(Date.now() - 950400000).toISOString(),
     course_code: 'MATH 267',
     book_title: 'Elementary Differential Equations and Laplace Transforms',
@@ -194,6 +205,7 @@ export const DEMO_LISTINGS: Listing[] = [
   // Natural Sciences - Chemistry
   {
     id: '12',
+    user_id: 'user-543',
     created_at: new Date(Date.now() - 1036800000).toISOString(),
     course_code: 'CHEM 121',
     book_title: 'General Chemistry: Atoms First',
@@ -205,6 +217,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '13',
+    user_id: 'user-125',
     created_at: new Date(Date.now() - 1123200000).toISOString(),
     course_code: 'CHEM 122',
     book_title: 'General Chemistry II',
@@ -216,6 +229,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '14',
+    user_id: 'user-261',
     created_at: new Date(Date.now() - 1209600000).toISOString(),
     course_code: 'CHEM 177',
     book_title: 'Chemistry Laboratory',
@@ -229,6 +243,7 @@ export const DEMO_LISTINGS: Listing[] = [
   // Natural Sciences - Biology
   {
     id: '15',
+    user_id: 'user-370',
     created_at: new Date(Date.now() - 1296000000).toISOString(),
     course_code: 'BIO 101',
     book_title: 'Principles of Biology',
@@ -240,6 +255,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '16',
+    user_id: 'user-525',
     created_at: new Date(Date.now() - 1382400000).toISOString(),
     course_code: 'BIO 211',
     book_title: 'Molecular Biology of the Cell',
@@ -251,6 +267,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '17',
+    user_id: 'user-971',
     created_at: new Date(Date.now() - 1468800000).toISOString(),
     course_code: 'BIO 212',
     book_title: 'Genetics and Evolution',
@@ -264,6 +281,7 @@ export const DEMO_LISTINGS: Listing[] = [
   // Natural Sciences - Physics
   {
     id: '18',
+    user_id: 'user-574',
     created_at: new Date(Date.now() - 1555200000).toISOString(),
     course_code: 'PHYS 201',
     book_title: 'University Physics Volume 1',
@@ -275,6 +293,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '19',
+    user_id: 'user-728',
     created_at: new Date(Date.now() - 1641600000).toISOString(),
     course_code: 'PHYS 221',
     book_title: 'Physics for Scientists and Engineers',
@@ -288,6 +307,7 @@ export const DEMO_LISTINGS: Listing[] = [
   // Business & Economics
   {
     id: '20',
+    user_id: 'user-638',
     created_at: new Date(Date.now() - 1728000000).toISOString(),
     course_code: 'ECON 101',
     book_title: 'Principles of Microeconomics',
@@ -299,6 +319,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '21',
+    user_id: 'user-789',
     created_at: new Date(Date.now() - 1814400000).toISOString(),
     course_code: 'ECON 102',
     book_title: 'Principles of Macroeconomics',
@@ -310,6 +331,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '22',
+    user_id: 'user-610',
     created_at: new Date(Date.now() - 1900800000).toISOString(),
     course_code: 'ACCT 284',
     book_title: 'Financial Accounting',
@@ -321,6 +343,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '23',
+    user_id: 'user-373',
     created_at: new Date(Date.now() - 1987200000).toISOString(),
     course_code: 'FIN 301',
     book_title: 'Corporate Finance Essentials',
@@ -332,6 +355,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '24',
+    user_id: 'user-124',
     created_at: new Date(Date.now() - 2073600000).toISOString(),
     course_code: 'MGMT 370',
     book_title: 'Management and Organizations',
@@ -345,6 +369,7 @@ export const DEMO_LISTINGS: Listing[] = [
   // Engineering
   {
     id: '25',
+    user_id: 'user-163',
     created_at: new Date(Date.now() - 2160000000).toISOString(),
     course_code: 'E E 201',
     book_title: 'Electric Circuits Fundamentals',
@@ -356,6 +381,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '26',
+    user_id: 'user-673',
     created_at: new Date(Date.now() - 2246400000).toISOString(),
     course_code: 'ME 270',
     book_title: 'Thermodynamics',
@@ -367,6 +393,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '27',
+    user_id: 'user-198',
     created_at: new Date(Date.now() - 2332800000).toISOString(),
     course_code: 'CPR E 288',
     book_title: 'Embedded Systems I',
@@ -378,6 +405,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '28',
+    user_id: 'user-789',
     created_at: new Date(Date.now() - 2419200000).toISOString(),
     course_code: 'CE 274',
     book_title: 'Engineering Mechanics: Statics',
@@ -391,6 +419,7 @@ export const DEMO_LISTINGS: Listing[] = [
   // Humanities & Arts
   {
     id: '29',
+    user_id: 'user-728',
     created_at: new Date(Date.now() - 2505600000).toISOString(),
     course_code: 'ENG 101',
     book_title: 'College Writing',
@@ -402,6 +431,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '30',
+    user_id: 'user-927',
     created_at: new Date(Date.now() - 2592000000).toISOString(),
     course_code: 'ENG 102',
     book_title: 'Norton Anthology of Literature',
@@ -413,6 +443,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '31',
+    user_id: 'user-640',
     created_at: new Date(Date.now() - 2678400000).toISOString(),
     course_code: 'HIST 201',
     book_title: 'American History Since 1877',
@@ -424,6 +455,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '32',
+    user_id: 'user-134',
     created_at: new Date(Date.now() - 2764800000).toISOString(),
     course_code: 'PHIL 201',
     book_title: 'Introduction to Philosophy',
@@ -437,6 +469,7 @@ export const DEMO_LISTINGS: Listing[] = [
   // Social Sciences
   {
     id: '33',
+    user_id: 'user-653',
     created_at: new Date(Date.now() - 2851200000).toISOString(),
     course_code: 'PSY 101',
     book_title: 'Psychology: Core Concepts',
@@ -448,6 +481,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '34',
+    user_id: 'user-788',
     created_at: new Date(Date.now() - 2937600000).toISOString(),
     course_code: 'PSY 230',
     book_title: 'Developmental Psychology',
@@ -459,6 +493,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '35',
+    user_id: 'user-162',
     created_at: new Date(Date.now() - 3024000000).toISOString(),
     course_code: 'SOC 134',
     book_title: 'Introduction to Sociology',
@@ -470,6 +505,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '36',
+    user_id: 'user-169',
     created_at: new Date(Date.now() - 3110400000).toISOString(),
     course_code: 'POLS 215',
     book_title: 'Introduction to American Politics',
@@ -483,6 +519,7 @@ export const DEMO_LISTINGS: Listing[] = [
   // More Computer Science
   {
     id: '37',
+    user_id: 'user-672',
     created_at: new Date(Date.now() - 3196800000).toISOString(),
     course_code: 'CS 290',
     book_title: 'Discrete Computational Structures',
@@ -494,6 +531,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '38',
+    user_id: 'user-342',
     created_at: new Date(Date.now() - 3283200000).toISOString(),
     course_code: 'CS 321',
     book_title: 'Computer Architecture and Machine-Level Programming',
@@ -505,6 +543,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '39',
+    user_id: 'user-722',
     created_at: new Date(Date.now() - 3369600000).toISOString(),
     course_code: 'CS 325',
     book_title: 'Software Engineering Principles',
@@ -518,6 +557,7 @@ export const DEMO_LISTINGS: Listing[] = [
   // More Mathematics
   {
     id: '40',
+    user_id: 'user-662',
     created_at: new Date(Date.now() - 3456000000).toISOString(),
     course_code: 'MATH 195',
     book_title: 'Mathematics for Business and Social Sciences',
@@ -529,6 +569,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '41',
+    user_id: 'user-956',
     created_at: new Date(Date.now() - 3542400000).toISOString(),
     course_code: 'MATH 317',
     book_title: 'Theory of Linear Algebra',
@@ -542,6 +583,7 @@ export const DEMO_LISTINGS: Listing[] = [
   // More Natural Sciences
   {
     id: '42',
+    user_id: 'user-578',
     created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
     course_code: 'CHEM 231',
     book_title: 'Organic Chemistry I',
@@ -553,6 +595,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '43',
+    user_id: 'user-451',
     created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
     course_code: 'BIO 255',
     book_title: 'Fundamentals of Biology',
@@ -564,6 +607,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '44',
+    user_id: 'user-632',
     created_at: new Date(Date.now() - 86400000 * 4).toISOString(),
     course_code: 'PHYS 222',
     book_title: 'Physics II with Calculus',
@@ -577,6 +621,7 @@ export const DEMO_LISTINGS: Listing[] = [
   // More Business
   {
     id: '45',
+    user_id: 'user-565',
     created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
     course_code: 'ECON 201',
     book_title: 'Intermediate Microeconomics',
@@ -588,6 +633,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '46',
+    user_id: 'user-362',
     created_at: new Date(Date.now() - 86400000 * 6).toISOString(),
     course_code: 'ACCT 285',
     book_title: 'Managerial Accounting',
@@ -599,6 +645,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '47',
+    user_id: 'user-991',
     created_at: new Date(Date.now() - 86400000 * 7).toISOString(),
     course_code: 'MKT 340',
     book_title: 'Principles of Marketing',
@@ -612,6 +659,7 @@ export const DEMO_LISTINGS: Listing[] = [
   // More Engineering
   {
     id: '48',
+    user_id: 'user-768',
     created_at: new Date(Date.now() - 86400000 * 8).toISOString(),
     course_code: 'AER E 160',
     book_title: 'Introduction to Aerospace Engineering',
@@ -623,6 +671,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '49',
+    user_id: 'user-544',
     created_at: new Date(Date.now() - 86400000 * 9).toISOString(),
     course_code: 'IE 248',
     book_title: 'Engineering System Design',
@@ -634,6 +683,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '50',
+    user_id: 'user-722',
     created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
     course_code: 'MAT E 273',
     book_title: 'Materials Science and Engineering',
@@ -647,6 +697,7 @@ export const DEMO_LISTINGS: Listing[] = [
   // More Humanities
   {
     id: '51',
+    user_id: 'user-780',
     created_at: new Date(Date.now() - 86400000 * 11).toISOString(),
     course_code: 'ENG 250',
     book_title: 'Written, Oral, Visual, and Electronic Composition',
@@ -658,6 +709,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '52',
+    user_id: 'user-626',
     created_at: new Date(Date.now() - 86400000 * 12).toISOString(),
     course_code: 'HIST 202',
     book_title: 'American History to 1877',
@@ -671,6 +723,7 @@ export const DEMO_LISTINGS: Listing[] = [
   // More Social Sciences
   {
     id: '53',
+    user_id: 'user-357',
     created_at: new Date(Date.now() - 86400000 * 13).toISOString(),
     course_code: 'PSY 201',
     book_title: 'Introduction to Psychology',
@@ -682,6 +735,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '54',
+    user_id: 'user-922',
     created_at: new Date(Date.now() - 86400000 * 14).toISOString(),
     course_code: 'SOC 235',
     book_title: 'Sociology of Deviance',
@@ -693,6 +747,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '55',
+    user_id: 'user-606',
     created_at: new Date(Date.now() - 86400000 * 15).toISOString(),
     course_code: 'ANTHR 201',
     book_title: 'Introduction to Anthropology',
@@ -706,6 +761,7 @@ export const DEMO_LISTINGS: Listing[] = [
   // Additional popular courses
   {
     id: '56',
+    user_id: 'user-680',
     created_at: new Date(Date.now() - 86400000 * 16).toISOString(),
     course_code: 'CS 340',
     book_title: 'Algorithms and Data Structures',
@@ -717,6 +773,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '57',
+    user_id: 'user-289',
     created_at: new Date(Date.now() - 86400000 * 17).toISOString(),
     course_code: 'MATH 385',
     book_title: 'Introduction to Probability Theory',
@@ -728,6 +785,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '58',
+    user_id: 'user-722',
     created_at: new Date(Date.now() - 86400000 * 18).toISOString(),
     course_code: 'CHEM 331',
     book_title: 'Organic Chemistry II',
@@ -739,6 +797,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '59',
+    user_id: 'user-662',
     created_at: new Date(Date.now() - 86400000 * 19).toISOString(),
     course_code: 'ECON 202',
     book_title: 'Intermediate Macroeconomics',
@@ -750,6 +809,7 @@ export const DEMO_LISTINGS: Listing[] = [
   },
   {
     id: '60',
+    user_id: 'user-950',
     created_at: new Date(Date.now() - 86400000 * 20).toISOString(),
     course_code: 'CS 352',
     book_title: 'Operating Systems',
