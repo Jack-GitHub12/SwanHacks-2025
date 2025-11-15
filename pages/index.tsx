@@ -56,21 +56,29 @@ export default function Home() {
   const loadListings = async () => {
     try {
       if (DEMO_MODE) {
+        console.log('Using DEMO_MODE');
         setListings(DEMO_LISTINGS);
       } else {
-        // Optimized query: Select only needed columns and limit results
+        console.log('Fetching listings from Supabase...');
+        // Simplified query - just use * to get all columns for now
         const { data, error } = await supabase
           .from('listings')
-          .select('id, created_at, course_code, book_title, price, contact_info, condition, notes, status, user_id')
+          .select('*')
           .eq('status', 'active')
           .order('created_at', { ascending: false })
-          .limit(100); // Limit to 100 most recent listings for faster loading
+          .limit(100);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase query error:', error);
+          throw error;
+        }
+        
+        console.log('Listings loaded:', data?.length || 0);
         setListings(data || []);
       }
     } catch (error) {
       console.error('Error loading listings:', error);
+      console.log('Falling back to DEMO_LISTINGS');
       setListings(DEMO_LISTINGS);
     } finally {
       setLoading(false);
