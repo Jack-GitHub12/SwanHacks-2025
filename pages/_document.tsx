@@ -8,14 +8,6 @@ export default function Document() {
         <link rel="dns-prefetch" href="https://xapazebllxyonzrtrmcj.supabase.co" />
         <link rel="preconnect" href="https://xapazebllxyonzrtrmcj.supabase.co" crossOrigin="anonymous" />
         
-        {/* Preload critical resources */}
-        <link
-          rel="preload"
-          href="/_next/static/css/app.css"
-          as="style"
-          crossOrigin="anonymous"
-        />
-        
         {/* Resource hints for better performance */}
         <meta httpEquiv="x-dns-prefetch-control" content="on" />
         
