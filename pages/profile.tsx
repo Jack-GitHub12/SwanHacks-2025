@@ -45,53 +45,42 @@ export default function Profile() {
   const loadProfile = async () => {
     if (!user) return;
 
-    // Set a timeout to prevent infinite loading
-    const loadTimeout = setTimeout(() => {
-      console.warn('Profile loading timeout - using default profile');
-      setFormData({
+    try {
+      // INSTANTLY show default profile to user
+      const defaultProfile = {
         username: user.email?.split('@')[0] || '',
         display_name: user.email?.split('@')[0] || 'User',
         avatar_url: '',
         bio: '',
         major: '',
         graduation_year: undefined,
-      });
+      };
+      
+      setFormData(defaultProfile);
       setIsLoading(false);
-    }, 5000);
+      console.log('Showing default profile instantly');
 
-    try {
       if (DEMO_MODE) {
-        console.log('Using DEMO_MODE for profile');
-        clearTimeout(loadTimeout);
-        setFormData({
-          username: user.email?.split('@')[0] || '',
-          display_name: 'Demo User',
-          avatar_url: '',
-          bio: 'Iowa State student',
-          major: 'Computer Science',
-          graduation_year: 2026,
-        });
-        setIsLoading(false);
+        console.log('DEMO_MODE enabled - keeping default profile');
         return;
       }
 
-      console.log('Fetching profile from Supabase...');
+      console.log('Attempting to fetch real profile from Supabase...');
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
         .eq('id', user.id)
         .single();
 
-      clearTimeout(loadTimeout);
-
       if (error && error.code !== 'PGRST116') {
         console.error('Profile load error:', error);
-        throw error;
+        console.log('Keeping default profile');
+        return;
       }
 
-      console.log('Profile loaded:', !!data);
-
+      // Only update if we got real profile data
       if (data) {
+        console.log('Real profile loaded');
         setProfile(data);
         setFormData({
           username: data.username || '',
@@ -102,33 +91,12 @@ export default function Profile() {
           graduation_year: data.graduation_year || undefined,
         });
       } else {
-        // No profile yet, use email as default username
-        console.log('No existing profile - creating default');
-        setFormData({
-          username: user.email?.split('@')[0] || '',
-          display_name: user.email?.split('@')[0] || 'User',
-          avatar_url: '',
-          bio: '',
-          major: '',
-          graduation_year: undefined,
-        });
+        console.log('No existing profile - keeping defaults');
       }
     } catch (error) {
-      clearTimeout(loadTimeout);
       console.error('Error loading profile:', error);
-      setError('Failed to load profile. Using defaults.');
-      // Set default values on error
-      setFormData({
-        username: user.email?.split('@')[0] || '',
-        display_name: user.email?.split('@')[0] || 'User',
-        avatar_url: '',
-        bio: '',
-        major: '',
-        graduation_year: undefined,
-      });
-    } finally {
-      clearTimeout(loadTimeout);
-      setIsLoading(false);
+      console.log('Keeping default profile');
+      // Default already showing, form is editable
     }
   };
 

@@ -130,52 +130,41 @@ export default function Discussions() {
   }, [discussions, selectedCategory, searchQuery]);
 
   const loadDiscussions = async () => {
-    // Set a timeout to prevent infinite loading
-    const loadTimeout = setTimeout(() => {
-      console.warn('Discussions loading timeout - falling back to demo data');
+    try {
+      // INSTANTLY show demo data to user
       setDiscussions(DEMO_DISCUSSIONS);
       setLoading(false);
-    }, 5000);
+      console.log('Showing demo discussions instantly');
 
-    try {
+      // Then try to load real data in background
       if (DEMO_MODE) {
-        console.log('Using DEMO_MODE for discussions');
-        clearTimeout(loadTimeout);
-        setDiscussions(DEMO_DISCUSSIONS);
-        setLoading(false);
+        console.log('DEMO_MODE enabled - keeping demo data');
         return;
       }
 
-      console.log('Fetching discussions from Supabase...');
+      console.log('Attempting to fetch real discussions from Supabase...');
       const { data, error } = await supabase
         .from('discussions_with_user')
         .select('*')
         .order('updated_at', { ascending: false });
 
-      clearTimeout(loadTimeout);
-
       if (error) {
         console.error('Supabase discussions error:', error);
-        throw error;
+        console.log('Keeping demo data');
+        return;
       }
 
-      console.log('Discussions loaded:', data?.length || 0);
-      
-      // If no data, use demo discussions
-      if (!data || data.length === 0) {
-        console.warn('No discussions found - using demo data');
-        setDiscussions(DEMO_DISCUSSIONS);
-      } else {
+      // Only replace demo data if we got real data
+      if (data && data.length > 0) {
+        console.log('Real discussions loaded:', data.length);
         setDiscussions(data);
+      } else {
+        console.log('No real discussions - keeping demo data');
       }
     } catch (error) {
-      clearTimeout(loadTimeout);
       console.error('Error loading discussions:', error);
-      console.log('Falling back to DEMO_DISCUSSIONS');
-      setDiscussions(DEMO_DISCUSSIONS);
-    } finally {
-      clearTimeout(loadTimeout);
-      setLoading(false);
+      console.log('Keeping demo data');
+      // Demo data already showing, so we're good
     }
   };
 

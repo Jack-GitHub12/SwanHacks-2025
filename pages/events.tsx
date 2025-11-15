@@ -340,51 +340,40 @@ export default function Events() {
   }, [events, sortBy, showExpired]);
 
   const loadEvents = async () => {
-    // Set a timeout to prevent infinite loading
-    const loadTimeout = setTimeout(() => {
-      console.warn('Events loading timeout - falling back to demo data');
+    try {
+      // INSTANTLY show demo data to user
       setEvents(DEMO_EVENTS);
       setLoading(false);
-    }, 5000);
+      console.log('Showing demo events instantly');
 
-    try {
+      // Then try to load real data in background
       if (DEMO_MODE) {
-        console.log('Using DEMO_MODE for events');
-        clearTimeout(loadTimeout);
-        setEvents(DEMO_EVENTS);
-        setLoading(false);
+        console.log('DEMO_MODE enabled - keeping demo data');
         return;
       }
 
-      console.log('Fetching events from Supabase...');
+      console.log('Attempting to fetch real events from Supabase...');
       const { data, error } = await supabase
         .from('events_feed')
         .select('*');
 
-      clearTimeout(loadTimeout);
-
       if (error) {
         console.error('Supabase events error:', error);
-        throw error;
+        console.log('Keeping demo data');
+        return;
       }
 
-      console.log('Events loaded:', data?.length || 0);
-      
-      // If no data, use demo events
-      if (!data || data.length === 0) {
-        console.warn('No events found - using demo data');
-        setEvents(DEMO_EVENTS);
-      } else {
+      // Only replace demo data if we got real data
+      if (data && data.length > 0) {
+        console.log('Real events loaded:', data.length);
         setEvents(data);
+      } else {
+        console.log('No real events - keeping demo data');
       }
     } catch (error) {
-      clearTimeout(loadTimeout);
       console.error('Error loading events:', error);
-      console.log('Falling back to DEMO_EVENTS');
-      setEvents(DEMO_EVENTS);
-    } finally {
-      clearTimeout(loadTimeout);
-      setLoading(false);
+      console.log('Keeping demo data');
+      // Demo data already showing, so we're good
     }
   };
 
