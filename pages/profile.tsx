@@ -135,14 +135,21 @@ export default function Profile() {
     try {
       if (DEMO_MODE) {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        const avatarUrl = URL.createObjectURL(selectedFile);
-        setFormData({ ...formData, avatar_url: avatarUrl });
-        // Save to session storage so it persists!
-        setDemoProfile({ ...formData, avatar_url: avatarUrl });
-        setMessage('Image uploaded! (Demo mode - persists this session)');
-        setSelectedFile(null);
-        setPreviewUrl('');
-        setIsUploading(false);
+
+        // Convert image to base64 so it persists in localStorage
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64String = reader.result as string;
+          const updatedFormData = { ...formData, avatar_url: base64String };
+          setFormData(updatedFormData);
+          // Save to localStorage so it persists across sessions!
+          setDemoProfile(updatedFormData);
+          setMessage('Image uploaded and saved! (Demo mode - stored in browser)');
+          setSelectedFile(null);
+          setPreviewUrl('');
+          setIsUploading(false);
+        };
+        reader.readAsDataURL(selectedFile);
         return;
       }
 
@@ -205,7 +212,7 @@ export default function Profile() {
         // Save to session storage so it persists
         setDemoProfile(formData);
         
-        setMessage('Profile updated! Changes saved for this session.');
+        setMessage('Profile saved! (Demo mode - stored in browser)');
         setIsSaving(false);
         return;
       }

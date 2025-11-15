@@ -36,6 +36,21 @@ export default function Login() {
     setError('');
 
     try {
+      // Check for demo account
+      if (email === 'demo@iastate.edu' && password === 'password') {
+        console.log('Demo login successful');
+
+        // Store demo flag in localStorage
+        localStorage.setItem('isDemoUser', 'true');
+
+        // Brief wait for consistency
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        // Redirect to marketplace page using window.location for full page reload
+        window.location.href = '/marketplace';
+        return;
+      }
+
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -45,7 +60,7 @@ export default function Login() {
 
       if (data.user && data.session) {
         console.log('Login successful for:', data.user.email);
-        
+
         // Brief wait for the session to be stored in localStorage
         await new Promise(resolve => setTimeout(resolve, 300));
 
@@ -76,7 +91,7 @@ export default function Login() {
           redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
-            prompt: 'select_account',
+            prompt: 'consent',
           },
         },
       });
