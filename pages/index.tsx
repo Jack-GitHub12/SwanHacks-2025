@@ -1,440 +1,600 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React from 'react';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
-import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import Header from '@/components/Header';
-import ListingCard from '@/components/ListingCard';
-import CategoryFilter from '@/components/CategoryFilter';
-import { supabase, DEMO_MODE, DEMO_LISTINGS } from '@/lib/supabase';
-import { useAuth } from '@/contexts/AuthContext';
-import { getCoursesByDepartment } from '@/lib/categories';
-import type { Listing, SortOption } from '@/types';
+import Logo from '@/components/Logo';
+import FeatureIcon from '@/components/FeatureIcon';
 
-// Lazy load heavy components for better initial page load
-const ContactModal = dynamic(() => import('@/components/ContactModal'), { ssr: false });
-const SafetyModal = dynamic(() => import('@/components/SafetyModal'), { ssr: false });
-const FloatingActionButton = dynamic(() => import('@/components/FloatingActionButton'), { ssr: false });
-const Footer = dynamic(() => import('@/components/Footer'), { ssr: false });
-
-export default function Home() {
-  const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
-  const [listings, setListings] = useState<Listing[]>([]);
-  const [filteredListings, setFilteredListings] = useState<Listing[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [departmentFilter, setDepartmentFilter] = useState('');
-  const [courseFilter, setCourseFilter] = useState('');
-  const [sortBy, setSortBy] = useState<SortOption>('date');
-  const [contactModalOpen, setContactModalOpen] = useState(false);
-  const [safetyModalOpen, setSafetyModalOpen] = useState(false);
-  const [selectedContact, setSelectedContact] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
-
-  // Redirect to login if not authenticated
-  useEffect(() => {
-    if (!authLoading && !user) {
-      // Use replace to avoid adding to browser history
-      router.replace('/login');
-    }
-  }, [user, authLoading, router]);
-
-  // Load listings after user is authenticated
-  useEffect(() => {
-    if (user) {
-      console.log('User authenticated, loading listings...');
-      loadListings();
-    } else if (!authLoading) {
-      console.log('No user, redirecting to login');
-    }
-  }, [user, authLoading]);
-
-  // Filter and sort whenever dependencies change
-  useEffect(() => {
-    filterAndSortListings();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listings, departmentFilter, courseFilter, sortBy, searchQuery]);
-
-  const loadListings = async () => {
-    // Set a timeout to prevent infinite loading
-    const loadTimeout = setTimeout(() => {
-      console.warn('Loading timeout - falling back to demo data');
-      setListings(DEMO_LISTINGS);
-      setLoading(false);
-    }, 5000); // 5 second timeout
-
-    try {
-      if (DEMO_MODE) {
-        console.log('Using DEMO_MODE');
-        clearTimeout(loadTimeout);
-        setListings(DEMO_LISTINGS);
-        setLoading(false);
-        return;
-      }
-
-      console.log('Fetching listings from Supabase...');
-      console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-      
-      // Check if user is authenticated
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('Session exists:', !!session);
-      
-      if (!session) {
-        console.warn('No active session - user may need to log in');
-        clearTimeout(loadTimeout);
-        setLoading(false);
-        return;
-      }
-
-      // Try to fetch listings
-      const { data, error } = await supabase
-        .from('listings')
-        .select('*')
-        .eq('status', 'active')
-        .order('created_at', { ascending: false })
-        .limit(100);
-
-      clearTimeout(loadTimeout);
-
-      if (error) {
-        console.error('Supabase query error:', error);
-        console.error('Error details:', JSON.stringify(error, null, 2));
-        throw error;
-      }
-      
-      console.log('Listings loaded successfully:', data?.length || 0);
-      
-      // If no data, use demo listings
-      if (!data || data.length === 0) {
-        console.warn('No listings found in database - using demo data');
-        setListings(DEMO_LISTINGS.slice(0, 10)); // Show 10 demo listings
-      } else {
-        setListings(data);
-      }
-    } catch (error) {
-      clearTimeout(loadTimeout);
-      console.error('Error loading listings:', error);
-      console.log('Falling back to DEMO_LISTINGS');
-      // Always fallback to demo data on error
-      setListings(DEMO_LISTINGS.slice(0, 10));
-    } finally {
-      clearTimeout(loadTimeout);
-      setLoading(false);
-    }
-  };
-
-  const filterAndSortListings = () => {
-    let filtered = [...listings];
-
-    // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(l => 
-        l.book_title.toLowerCase().includes(query) ||
-        l.course_code.toLowerCase().includes(query) ||
-        l.notes?.toLowerCase().includes(query)
-      );
-    }
-
-    // Filter by department
-    if (departmentFilter) {
-      const deptCourses = getCoursesByDepartment(departmentFilter);
-      filtered = filtered.filter(l => 
-        deptCourses.some(course => course.toLowerCase() === l.course_code.toLowerCase())
-      );
-    }
-
-    // Filter by specific course
-    if (courseFilter) {
-      filtered = filtered.filter(l => l.course_code === courseFilter);
-    }
-
-    // Sort
-    switch (sortBy) {
-      case 'date':
-        filtered.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-        break;
-      case 'price-low':
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case 'price-high':
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case 'course':
-        filtered.sort((a, b) => a.course_code.localeCompare(b.course_code));
-        break;
-    }
-
-    setFilteredListings(filtered);
-  };
-
-  const uniqueCourses = Array.from(new Set(listings.map(l => l.course_code))).sort();
-  
-  // Calculate listing counts per course
-  const listingCounts = useMemo(() => {
-    const counts = new Map<string, number>();
-    listings.forEach(listing => {
-      const current = counts.get(listing.course_code) || 0;
-      counts.set(listing.course_code, current + 1);
-    });
-    return counts;
-  }, [listings]);
-
-  const handleShowContact = (contactInfo: string) => {
-    setSelectedContact(contactInfo);
-    setContactModalOpen(true);
-  };
-
-  const handleEdit = (listingId: string) => {
-    router.push(`/edit/${listingId}`);
-  };
-
-  const handleDelete = async (listingId: string) => {
-    if (!confirm('Are you sure you want to delete this listing? This action cannot be undone.')) {
-      return;
-    }
-
-    try {
-      if (DEMO_MODE) {
-        setListings(prev => prev.filter(l => l.id !== listingId));
-        return;
-      }
-
-      const { error } = await supabase
-        .from('listings')
-        .delete()
-        .eq('id', listingId);
-
-      if (error) throw error;
-
-      // Remove from local state
-      setListings(prev => prev.filter(l => l.id !== listingId));
-      alert('Listing deleted successfully!');
-    } catch (error) {
-      console.error('Error deleting listing:', error);
-      alert('Failed to delete listing. Please try again.');
-    }
-  };
+export default function Landing() {
+  const features = [
+    {
+      icon: 'lightning' as const,
+      title: 'Lightning Fast',
+      description: 'Post your item in 30 seconds. Find what you need instantly.',
+    },
+    {
+      icon: 'ai' as const,
+      title: 'AI-Powered',
+      description: 'Smart descriptions and fair price suggestions powered by Google Gemini.',
+    },
+    {
+      icon: 'money' as const,
+      title: 'Save Money',
+      description: 'Better prices than campus bookstores. Buy and sell directly with students.',
+    },
+    {
+      icon: 'shield' as const,
+      title: 'Safe & Secure',
+      description: 'ISU email verification. Contact info hidden until you\'re ready.',
+    },
+    {
+      icon: 'mobile' as const,
+      title: 'Mobile Friendly',
+      description: 'Works perfectly on any device. Browse and post from anywhere.',
+    },
+    {
+      icon: 'search' as const,
+      title: 'Smart Search',
+      description: 'Find exactly what you need with powerful filtering and search.',
+    },
+  ];
 
   return (
     <>
       <Head>
-        <title>Bookster - Student Item Exchange</title>
-        <meta name="description" content="Buy and sell items with fellow students. Post in 30 seconds, find items instantly. Better prices than campus bookstores!" />
+        <title>Bookster - Iowa State Student Community & Marketplace</title>
+        <meta name="description" content="Connect with Iowa State students. Trade items, join discussions, discover events. AI-powered community platform with marketplace features." />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Bookster - Student Item Exchange" />
-        <meta property="og:description" content="Buy and sell items with fellow students. Post in 30 seconds, find items instantly." />
+        <meta property="og:title" content="Bookster - Iowa State Student Community & Marketplace" />
+        <meta property="og:description" content="The complete community platform for Iowa State students. Trade items, discuss topics, and discover campus events." />
       </Head>
 
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-50 via-white to-primary-50/20 relative">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-primary-900 to-secondary-900 relative">
         {/* Subtle grain texture overlay */}
-        <div className="fixed inset-0 bg-noise opacity-[0.02] pointer-events-none"></div>
-        <Header />
-
-        {/* Enhanced Search & Filter Bar */}
-        <motion.section
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.2 }}
-          className="glass-enhanced border border-gray-200/50 rounded-2xl mx-4 my-4 py-8"
+        <div className="fixed inset-0 bg-noise opacity-[0.015] pointer-events-none"></div>
+        {/* Navigation */}
+        <motion.nav
+          initial={{ y: -100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="fixed top-4 left-4 right-4 z-50 glass-dark border border-white/10 rounded-2xl shadow-2xl"
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Search Bar */}
-            <div className="mb-6">
-              <div className="relative max-w-2xl mx-auto">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search by book title, course code, or keywords..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="input-enhanced w-full pl-12 pr-4"
-                />
-                {searchQuery && (
-                  <button
-                    onClick={() => setSearchQuery('')}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
-                  >
-                    <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Enhanced Category Filter */}
-            <CategoryFilter
-              selectedDepartment={departmentFilter}
-              selectedCourse={courseFilter}
-              onDepartmentChange={setDepartmentFilter}
-              onCourseChange={setCourseFilter}
-              availableCourses={uniqueCourses}
-              listingCounts={listingCounts}
-            />
-
-            {/* Sort Options */}
-            <div className="mt-4">
-              <label htmlFor="sortBy" className="block text-sm font-semibold text-gray-700 mb-2">
-                Sort by:
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  { value: 'date', label: 'Newest First', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' },
-                  { value: 'price-low', label: 'Price: Low to High', icon: 'M7 11l5-5m0 0l5 5m-5-5v12' },
-                  { value: 'price-high', label: 'Price: High to Low', icon: 'M17 13l-5 5m0 0l-5-5m5 5V6' },
-                  { value: 'course', label: 'Course Code', icon: 'M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4' },
-                ].map((option) => (
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div className="flex items-center justify-between">
+              <Logo size="md" theme="dark" showText={true} animated={true} />
+              
+              <div className="flex items-center gap-4">
+                <Link href="/login">
                   <motion.button
-                    key={option.value}
-                    onClick={() => setSortBy(option.value as SortOption)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
-                      sortBy === option.value
-                        ? 'bg-gradient-to-r from-primary-600 to-secondary-600 text-white shadow-md'
-                        : 'bg-white/80 text-gray-700 border-2 border-gray-200 hover:border-primary-300'
-                    }`}
-                    whileHover={{ scale: 1.05, y: -2 }}
+                    className="btn-glass text-white"
+                    whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d={option.icon} />
-                    </svg>
-                    {option.label}
+                    Sign In
                   </motion.button>
+                </Link>
+                <Link href="/signup">
+                  <motion.button
+                    className="btn-gradient"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Get Started
+                  </motion.button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </motion.nav>
+
+        {/* Hero Section */}
+        <section className="relative pt-36 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+          {/* Animated background elements */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <motion.div
+              className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary-500/20 rounded-full blur-3xl"
+              animate={{
+                scale: [1, 1.2, 1],
+                opacity: [0.3, 0.5, 0.3],
+              }}
+              transition={{ duration: 8, repeat: Infinity }}
+            />
+            <motion.div
+              className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-secondary-500/20 rounded-full blur-3xl"
+              animate={{
+                scale: [1.2, 1, 1.2],
+                opacity: [0.5, 0.3, 0.5],
+              }}
+              transition={{ duration: 8, repeat: Infinity }}
+            />
+            {/* Floating decorative elements */}
+            <motion.div
+              className="absolute top-20 right-20 w-20 h-20 border-2 border-primary-400/30 rounded-lg"
+              animate={{
+                y: [0, -30, 0],
+                rotate: [0, 45, 0],
+              }}
+              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute bottom-40 left-20 w-16 h-16 border-2 border-secondary-400/30 rounded-full"
+              animate={{
+                y: [0, 30, 0],
+                scale: [1, 1.2, 1],
+              }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute top-1/2 right-1/4 w-12 h-12 bg-gradient-to-br from-primary-400/20 to-secondary-400/20 rounded-lg"
+              animate={{
+                y: [0, -20, 0],
+                x: [0, 20, 0],
+                rotate: [0, 90, 0],
+              }}
+              transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </div>
+
+          <div className="max-w-7xl mx-auto relative">
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-center"
+            >
+              {/* Badge */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 }}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full border border-white/20 mb-8"
+              >
+                <span className="text-xs font-semibold text-white">For Iowa State Students</span>
+                <span className="px-2 py-0.5 bg-gradient-to-r from-primary-500 to-secondary-500 rounded-full text-xs font-bold text-white">
+                  AI-Powered
+                </span>
+              </motion.div>
+
+              {/* Main Heading */}
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  delay: 0.3,
+                  duration: 0.8,
+                  ease: [0.22, 1, 0.36, 1]
+                }}
+                className="text-5xl sm:text-6xl lg:text-7xl font-black text-white mb-6 leading-tight"
+              >
+                <motion.span
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.4, duration: 0.6 }}
+                  className="inline-block"
+                >
+                  ISU Student Community
+                </motion.span>
+                <br />
+                <motion.span
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{
+                    delay: 0.6,
+                    duration: 0.8,
+                    ease: [0.22, 1, 0.36, 1]
+                  }}
+                  className="inline-block bg-gradient-to-r from-primary-400 via-secondary-400 to-primary-400 bg-clip-text text-transparent animate-gradient"
+                >
+                  & Marketplace
+                </motion.span>
+              </motion.h1>
+
+              {/* Subtitle */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  delay: 0.8,
+                  duration: 0.6,
+                  ease: "easeOut"
+                }}
+                className="text-xl sm:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto"
+              >
+                {['Trade items & connect.', 'AI-powered listings.', 'Community discussions.', 'Campus events.'].map((text, i) => (
+                  <motion.span
+                    key={i}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.9 + i * 0.1, duration: 0.5 }}
+                    className="inline-block mr-2"
+                  >
+                    {text}
+                  </motion.span>
                 ))}
+              </motion.p>
+
+              {/* CTA Buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.3 }}
+                className="flex flex-col sm:flex-row items-center justify-center gap-4"
+              >
+                <Link href="/signup">
+                  <motion.button
+                    className="group relative btn-gradient text-lg px-8 py-4 shadow-2xl overflow-hidden"
+                    whileHover={{ scale: 1.05, boxShadow: "0 20px 60px rgba(200, 16, 46, 0.5)" }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <span className="relative z-10 flex items-center">
+                      Get Started Free
+                      <motion.svg 
+                        className="w-5 h-5 ml-2 inline" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        xmlns="http://www.w3.org/2000/svg"
+                        animate={{ x: [0, 5, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      >
+                        <path d="M5 12h14m-7-7l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </motion.svg>
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                  </motion.button>
+                </Link>
+                <Link href="/browse">
+                  <motion.button
+                    className="btn-glass-large text-white text-lg px-8 py-4 relative overflow-hidden group"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <span className="relative z-10">Browse Listings</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary-500/0 via-primary-500/20 to-primary-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                  </motion.button>
+                </Link>
+              </motion.div>
+
+              {/* Trust Indicators */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.5 }}
+                className="mt-12 flex flex-wrap items-center justify-center gap-8 text-gray-400 text-sm"
+              >
+                {['Join Now', 'Free Forever', 'AI-Powered'].map((text, i) => (
+                  <motion.div
+                    key={text}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 1.6 + i * 0.1, duration: 0.5 }}
+                    className="flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur-sm rounded-full border border-white/10"
+                  >
+                    <motion.svg 
+                      className="w-5 h-5 text-green-400" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      xmlns="http://www.w3.org/2000/svg"
+                      initial={{ pathLength: 0 }}
+                      animate={{ pathLength: 1 }}
+                      transition={{ delay: 1.7 + i * 0.1, duration: 0.5 }}
+                    >
+                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </motion.svg>
+                    <span>{text}</span>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section className="py-24 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="text-center mb-16"
+            >
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1, duration: 0.6 }}
+                className="text-4xl sm:text-5xl font-bold text-white mb-4"
+              >
+                {'Everything You Need'.split(' ').map((word, i) => (
+                  <motion.span
+                    key={i}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
+                    className="inline-block mr-3"
+                  >
+                    {word}
+                  </motion.span>
+                ))}
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.6, duration: 0.6 }}
+                className="text-xl text-gray-400 max-w-2xl mx-auto"
+              >
+                A complete platform designed specifically for Iowa State students
+              </motion.p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {features.map((feature, index) => (
+                <motion.div
+                  key={feature.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ y: -8, scale: 1.02 }}
+                  className="feature-card group"
+                >
+                  <div className="mb-4">
+                    <FeatureIcon icon={feature.icon} size="lg" animated={true} />
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
+                  <p className="text-gray-400">{feature.description}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works */}
+        <section className="py-24 px-4 sm:px-6 lg:px-8 bg-black/20">
+          <div className="max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="text-center mb-16"
+            >
+              <motion.h2
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1, duration: 0.6 }}
+                className="text-4xl sm:text-5xl font-bold text-white mb-4"
+              >
+                How It Works
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+                className="text-xl text-gray-400"
+              >
+                Get started in three simple steps
+              </motion.p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-3 gap-12">
+              {[
+                {
+                  step: '1',
+                  title: 'Sign Up',
+                  description: 'Quick signup with Google - no ISU email required',
+                },
+                {
+                  step: '2',
+                  title: 'Explore & Engage',
+                  description: 'Trade items, join discussions, discover campus events',
+                },
+                {
+                  step: '3',
+                  title: 'Connect & Thrive',
+                  description: 'Build connections with fellow Cyclones in your community',
+                },
+              ].map((item, index) => (
+                <motion.div
+                  key={item.step}
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.2 }}
+                  className="relative text-center"
+                >
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.1 + index * 0.2, type: "spring", stiffness: 200 }}
+                    className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center text-2xl font-bold text-white shadow-2xl"
+                  >
+                    {item.step}
+                  </motion.div>
+                  <motion.h3
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.3 + index * 0.2, duration: 0.5 }}
+                    className="text-2xl font-bold text-white mb-3"
+                  >
+                    {item.title}
+                  </motion.h3>
+                  <motion.p
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.4 + index * 0.2, duration: 0.5 }}
+                    className="text-gray-400"
+                  >
+                    {item.description}
+                  </motion.p>
+                  {index < 2 && (
+                    <div className="hidden md:block absolute top-8 -right-6 text-gray-600 text-4xl">
+                      →
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-24 px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="max-w-4xl mx-auto text-center relative"
+          >
+            {/* Glass card with gradient border */}
+            <div className="absolute inset-0 bg-gradient-to-br from-primary-600 to-secondary-600 rounded-3xl blur-xl opacity-30"></div>
+            <div className="relative bg-gradient-to-br from-primary-600 to-secondary-600 rounded-3xl p-12 shadow-2xl backdrop-blur-xl">
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1, duration: 0.6 }}
+                className="text-4xl sm:text-5xl font-bold text-white mb-6"
+              >
+                {['Join', 'the', 'Cyclone', 'Community'].map((word, i) => (
+                  <motion.span
+                    key={i}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.2 + i * 0.1, duration: 0.5 }}
+                    className="inline-block mr-3"
+                  >
+                    {word}
+                  </motion.span>
+                ))}
+              </motion.h2>
+              <motion.p
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.6, duration: 0.6 }}
+                className="text-xl text-white/90 mb-8"
+              >
+                Connect, trade, and engage with fellow Iowa State students
+              </motion.p>
+              <Link href="/signup">
+                <motion.button
+                  className="bg-white text-primary-600 font-bold text-lg px-10 py-4 rounded-xl shadow-xl hover:shadow-2xl"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Get Started Free
+                </motion.button>
+              </Link>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* Footer */}
+        <footer className="py-12 px-4 sm:px-6 lg:px-8 border-t border-white/10">
+          <div className="max-w-7xl mx-auto">
+            {/* Tech Stack Badges */}
+            <div className="mb-8">
+              <p className="text-center text-gray-500 text-xs uppercase tracking-wide mb-4">Built With</p>
+              <div className="flex flex-wrap items-center justify-center gap-6">
+                {/* Next.js Badge */}
+                <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-lg border border-white/10 hover:border-white/20 transition-colors">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="white">
+                    <path d="M11.5725 0c-.1763 0-.3098.0013-.3584.0067-.0516.0053-.2159.021-.3636.0328-3.4088.3073-6.6017 2.1463-8.624 4.9728C1.1004 6.584.3802 8.3666.1082 10.255c-.0962.659-.108.8537-.108 1.7474s.012 1.0884.108 1.7476c.652 4.506 3.8591 8.2919 8.2087 9.6945.7789.2511 1.6.4223 2.5337.5255.3636.04 1.9354.04 2.299 0 1.6117-.1783 2.9772-.577 4.3237-1.2643.2065-.1056.2464-.1337.2183-.1573-.0188-.0139-.8987-1.1938-1.9543-2.62l-1.919-2.592-2.4047-3.5583c-1.3231-1.9564-2.4117-3.556-2.4211-3.556-.0094-.0026-.0187 1.5787-.0235 3.509-.0067 3.3802-.0093 3.5162-.0516 3.596-.061.115-.108.1618-.2064.2134-.075.0374-.1408.0445-.495.0445h-.406l-.1078-.068a.4383.4383 0 01-.1572-.1712l-.0493-.1056.0053-4.703.0067-4.7054.0726-.0915c.0376-.0493.1174-.1125.1736-.143.0962-.047.1338-.0517.5396-.0517.4787 0 .5584.0187.6827.1547.0353.0377 1.3373 1.9987 2.895 4.3608a10760.433 10760.433 0 004.7344 7.1706l1.9002 2.8782.0968-.0638c.8597-.5691 1.7675-1.3633 2.4816-2.1708 1.5514-1.7551 2.568-3.8558 3.0247-6.2502.0961-.659.108-.8537.108-1.7475s-.012-1.0884-.108-1.7476c-.652-4.506-3.8591-8.2919-8.2087-9.6945-.7672-.2487-1.5836-.42-2.4985-.5232-.169-.0176-1.0835-.0366-1.6123-.037zm4.0685 7.217c.3473 0 .4082.0053.4857.047.1127.0562.204.1642.237.2767.0186.061.0234 1.3653.0186 4.3044l-.0067 4.2175-.7436-1.14-.7461-1.14v-3.066c0-1.982.0093-3.0963.0234-3.1502.0375-.1313.1196-.2346.2323-.2955.0961-.0494.1313-.054.4997-.054z"/>
+                  </svg>
+                  <span className="text-white text-sm font-medium">Next.js</span>
+                </div>
+
+                {/* Supabase Badge */}
+                <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-lg border border-white/10 hover:border-white/20 transition-colors">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="white">
+                    <path d="M12.955 3.567c-1.074-1.425-3.377-.816-3.377 1.126V16.74L3.956 21.48c-1.074.938-.277 2.681 1.177 2.569l16.333-1.265c1.454-.112 2.14-1.83 1.013-2.535l-7.524-4.682V3.567z"/>
+                  </svg>
+                  <span className="text-white text-sm font-medium">Supabase</span>
+                </div>
+
+                {/* TypeScript Badge */}
+                <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-lg border border-white/10 hover:border-white/20 transition-colors">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#3178C6">
+                    <path d="M1.125 0C.502 0 0 .502 0 1.125v21.75C0 23.498.502 24 1.125 24h21.75c.623 0 1.125-.502 1.125-1.125V1.125C24 .502 23.498 0 22.875 0zm17.363 9.75c.612 0 1.154.037 1.627.111a6.38 6.38 0 0 1 1.306.34v2.458a3.95 3.95 0 0 0-.643-.361 5.093 5.093 0 0 0-.717-.26 5.453 5.453 0 0 0-1.426-.2c-.3 0-.573.028-.819.086a2.1 2.1 0 0 0-.623.242c-.17.104-.3.229-.393.374a.888.888 0 0 0-.14.49c0 .196.053.373.156.529.104.156.252.304.443.444s.423.276.696.41c.273.135.582.274.926.416.47.197.892.407 1.266.628.374.222.695.473.963.753.268.279.472.598.614.957.142.359.214.776.214 1.253 0 .657-.125 1.21-.373 1.656a3.033 3.033 0 0 1-1.012 1.085 4.38 4.38 0 0 1-1.487.596c-.566.12-1.163.18-1.79.18a9.916 9.916 0 0 1-1.84-.164 5.544 5.544 0 0 1-1.512-.493v-2.63a5.033 5.033 0 0 0 3.237 1.2c.333 0 .624-.03.872-.09.249-.06.456-.144.623-.25.166-.108.29-.234.373-.38a1.023 1.023 0 0 0-.074-1.089 2.12 2.12 0 0 0-.537-.5 5.597 5.597 0 0 0-.807-.444 27.72 27.72 0 0 0-1.007-.436c-.918-.383-1.602-.852-2.053-1.405-.45-.553-.676-1.222-.676-2.005 0-.614.123-1.141.369-1.582.246-.441.58-.804 1.004-1.089a4.494 4.494 0 0 1 1.47-.629 7.536 7.536 0 0 1 1.77-.201zm-15.113.188h9.563v2.166H9.506v9.646H6.789v-9.646H3.375z"/>
+                  </svg>
+                  <span className="text-white text-sm font-medium">TypeScript</span>
+                </div>
+
+                {/* Tailwind Badge */}
+                <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-lg border border-white/10 hover:border-white/20 transition-colors">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#06B6D4">
+                    <path d="M12.001,4.8c-3.2,0-5.2,1.6-6,4.8c1.2-1.6,2.6-2.2,4.2-1.8c0.913,0.228,1.565,0.89,2.288,1.624 C13.666,10.618,15.027,12,18.001,12c3.2,0,5.2-1.6,6-4.8c-1.2,1.6-2.6,2.2-4.2,1.8c-0.913-0.228-1.565-0.89-2.288-1.624 C16.337,6.182,14.976,4.8,12.001,4.8z M6.001,12c-3.2,0-5.2,1.6-6,4.8c1.2-1.6,2.6-2.2,4.2-1.8c0.913,0.228,1.565,0.89,2.288,1.624 c1.177,1.194,2.538,2.576,5.512,2.576c3.2,0,5.2-1.6,6-4.8c-1.2,1.6-2.6,2.2-4.2,1.8c-0.913-0.228-1.565-0.89-2.288-1.624 C10.337,13.382,8.976,12,6.001,12z"/>
+                  </svg>
+                  <span className="text-white text-sm font-medium">Tailwind</span>
+                </div>
+
+                {/* Chakra UI Badge */}
+                <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-lg border border-white/10 hover:border-white/20 transition-colors">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm3.263 16.947l-1.87-4.674-4.674-1.87c-.34-.136-.34-.64 0-.776l4.674-1.87 1.87-4.674c.136-.34.64-.34.776 0l1.87 4.674 4.674 1.87c.34.136.34.64 0 .776l-4.674 1.87-1.87 4.674c-.136.34-.64.34-.776 0z" fill="#319795"/>
+                    <circle cx="12" cy="12" r="3" fill="#4FD1C5"/>
+                  </svg>
+                  <span className="text-white text-sm font-medium">Chakra UI</span>
+                </div>
+
+                {/* OpenRouter Badge */}
+                <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-lg border border-white/10 hover:border-white/20 transition-colors">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <linearGradient id="openrouter-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#3B82F6" />
+                        <stop offset="50%" stopColor="#8B5CF6" />
+                        <stop offset="100%" stopColor="#EC4899" />
+                      </linearGradient>
+                    </defs>
+                    <path d="M12 2L2 7v10c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V7l-10-5z" fill="url(#openrouter-gradient)" opacity="0.2" stroke="url(#openrouter-gradient)" strokeWidth="1.5"/>
+                    <path d="M12 8v8m-4-4h8" stroke="url(#openrouter-gradient)" strokeWidth="2" strokeLinecap="round"/>
+                    <circle cx="12" cy="12" r="2" fill="url(#openrouter-gradient)"/>
+                    <path d="M8 8l8 8M16 8l-8 8" stroke="url(#openrouter-gradient)" strokeWidth="1.5" strokeLinecap="round" opacity="0.4"/>
+                  </svg>
+                  <span className="text-white text-sm font-medium">OpenRouter</span>
+                </div>
               </div>
             </div>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex items-center justify-between text-sm"
-            >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-2"
-              >
-                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                <span className="text-gray-600 font-medium">
-                  {filteredListings.length} listing{filteredListings.length !== 1 ? 's' : ''} available
-                </span>
-              </motion.div>
-              {(searchQuery || departmentFilter || courseFilter) && (
-                <motion.button
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  onClick={() => {
-                    setSearchQuery('');
-                    setDepartmentFilter('');
-                    setCourseFilter('');
-                  }}
-                  className="text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  Clear All Filters
-                </motion.button>
-              )}
-            </motion.div>
-          </div>
-        </motion.section>
-
-        {/* Main Content */}
-        <main className="flex-1 py-8">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            {loading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <div key={i} className="card-enhanced p-6 animate-pulse">
-                    <div className="h-6 bg-gray-200 rounded w-20 mb-3"></div>
-                    <div className="h-6 bg-gray-300 rounded w-3/4 mb-2"></div>
-                    <div className="h-8 bg-gray-200 rounded w-24 mb-3"></div>
-                    <div className="h-4 bg-gray-200 rounded w-32 mb-3"></div>
-                    <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-                  </div>
-                ))}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-8 border-t border-white/10">
+              <Logo size="sm" theme="dark" showText={true} animated={false} />
+              <div className="text-gray-400 text-sm">
+                © 2025 Bookster. Made for ISU students
               </div>
-            ) : filteredListings.length === 0 ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-20"
-              >
-                <svg
-                  className="w-20 h-20 mx-auto text-gray-400 mb-4"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M4 19.5C4 18.837 4.26339 18.2011 4.73223 17.7322C5.20107 17.2634 5.83696 17 6.5 17H20"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M6.5 2H20V22H6.5C5.83696 22 5.20107 21.7366 4.73223 21.2678C4.26339 20.7989 4 20.163 4 19.5V4.5C4 3.83696 4.26339 3.20107 4.73223 2.73223C5.20107 2.26339 5.83696 2 6.5 2V2Z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">No items found</h2>
-                <p className="text-gray-600 mb-6">Be the first to post an item for this course!</p>
-                <motion.a
-                  href="/post"
-                  className="btn btn-primary"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Post an Item
-                </motion.a>
-              </motion.div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredListings.map((listing, index) => (
-                  <ListingCard
-                    key={listing.id}
-                    listing={listing}
-                    index={index}
-                    onShowContact={handleShowContact}
-                    currentUserId={user?.id}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                  />
-                ))}
-              </div>
-            )}
+            </div>
           </div>
-        </main>
-
-        <FloatingActionButton />
-        <Footer onSafetyClick={() => setSafetyModalOpen(true)} />
-
-        {/* Modals */}
-        <ContactModal
-          isOpen={contactModalOpen}
-          onClose={() => setContactModalOpen(false)}
-          contactInfo={selectedContact}
-        />
-        <SafetyModal
-          isOpen={safetyModalOpen}
-          onClose={() => setSafetyModalOpen(false)}
-        />
+        </footer>
       </div>
+
+      <style jsx global>{`
+        @keyframes gradient {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        
+        .animate-gradient {
+          background-size: 200% 200%;
+          animation: gradient 3s ease infinite;
+        }
+      `}</style>
     </>
   );
+}
+
+// Enable ISR (Incremental Static Regeneration) for faster page loads
+export async function getStaticProps() {
+  return {
+    props: {},
+    revalidate: 3600, // Revalidate every hour
+  };
 }
 

@@ -93,7 +93,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ isOpen, onClose, onPostAnot
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3">
-          <Link href="/" className="flex-1">
+          <Link href="/marketplace" className="flex-1">
             <motion.button
               className="w-full btn btn-primary"
               whileHover={{ scale: 1.02 }}

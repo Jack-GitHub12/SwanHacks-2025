@@ -73,13 +73,13 @@ export default function SignUp() {
           // Brief wait for session to be stored
           await new Promise(resolve => setTimeout(resolve, 300));
           // Redirect using window.location for full page reload
-          window.location.href = '/';
+          window.location.href = '/marketplace';
         } else {
           // Email verification required
           console.log('Email verification required');
           // Redirect after showing success message
           setTimeout(() => {
-            window.location.href = '/';
+            window.location.href = '/marketplace';
           }, 2000);
         }
       }

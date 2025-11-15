@@ -44,7 +44,7 @@ export default function EditListing() {
     try {
       if (DEMO_MODE) {
         // In demo mode, just redirect back
-        router.push('/');
+        router.push('/marketplace');
         return;
       }
 
@@ -59,7 +59,7 @@ export default function EditListing() {
       // Verify ownership
       if (data.user_id !== user?.id) {
         alert('You can only edit your own listings');
-        router.push('/');
+        router.push('/marketplace');
         return;
       }
 
@@ -75,7 +75,7 @@ export default function EditListing() {
     } catch (error) {
       console.error('Error loading listing:', error);
       alert('Failed to load listing');
-      router.push('/');
+      router.push('/marketplace');
     } finally {
       setIsLoading(false);
     }
@@ -552,7 +552,7 @@ export default function EditListing() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/marketplace')}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
@@ -583,7 +583,7 @@ export default function EditListing() {
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Listing Updated!</h2>
               <p className="text-gray-600 mb-6">Your changes have been saved successfully.</p>
               <button
-                onClick={() => router.push('/')}
+                onClick={() => router.push('/marketplace')}
                 className="btn btn-primary w-full"
               >
                 Back to Listings

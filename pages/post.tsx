@@ -519,7 +519,7 @@ export default function Post() {
                       'Post Listing'
                     )}
                   </motion.button>
-                  <Link href="/" className="flex-1">
+                  <Link href="/marketplace" className="flex-1">
                     <motion.button
                       type="button"
                       className="w-full btn btn-secondary text-lg py-3"

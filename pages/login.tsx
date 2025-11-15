@@ -18,7 +18,7 @@ export default function Login() {
   // Redirect to home if already logged in
   useEffect(() => {
     if (!authLoading && user) {
-      router.replace('/');
+      router.replace('/marketplace');
     }
   }, [user, authLoading, router]);
 
@@ -49,8 +49,8 @@ export default function Login() {
         // Brief wait for the session to be stored in localStorage
         await new Promise(resolve => setTimeout(resolve, 300));
 
-        // Redirect to home page using window.location for full page reload
-        window.location.href = '/';
+        // Redirect to marketplace page using window.location for full page reload
+        window.location.href = '/marketplace';
       }
     } catch (err: any) {
       console.error('Login error:', err);
