@@ -82,12 +82,12 @@ export const addDemoDiscussion = (newDiscussion: any, defaultDiscussions: any[])
 
 // Reply functions
 export const getDemoReplies = (discussionId: string, defaultReplies: any[]) => {
-  const allReplies = getDemoData(STORAGE_KEYS.REPLIES, {});
+  const allReplies = getDemoData<Record<string, any[]>>(STORAGE_KEYS.REPLIES, {});
   return allReplies[discussionId] || defaultReplies;
 };
 
 export const addDemoReply = (discussionId: string, newReply: any, defaultReplies: any[]) => {
-  const allReplies = getDemoData(STORAGE_KEYS.REPLIES, {});
+  const allReplies = getDemoData<Record<string, any[]>>(STORAGE_KEYS.REPLIES, {});
   const discussionReplies = allReplies[discussionId] || defaultReplies;
   const updated = [...discussionReplies, newReply];
   
@@ -110,12 +110,12 @@ export const setDemoProfile = (profile: any) => {
 
 // Vote functions
 export const getDemoVote = (discussionId: string) => {
-  const votes = getDemoData(STORAGE_KEYS.VOTES, {});
+  const votes = getDemoData<Record<string, string>>(STORAGE_KEYS.VOTES, {});
   return votes[discussionId] || null;
 };
 
 export const setDemoVote = (discussionId: string, voteType: 'up' | 'down' | null) => {
-  const votes = getDemoData(STORAGE_KEYS.VOTES, {});
+  const votes = getDemoData<Record<string, string>>(STORAGE_KEYS.VOTES, {});
   const updated = { ...votes };
   
   if (voteType === null) {

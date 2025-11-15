@@ -12,6 +12,7 @@ import { supabase, DEMO_MODE } from '@/lib/supabase';
 import { generateGoogleCalendarLink, formatEventDateTime, createEventDates } from '@/lib/calendar';
 import { formatDate } from '@/lib/utils';
 import { sortEvents, getEventTags, getTagColor, formatEventDate } from '@/lib/eventUtils';
+import { getDemoDiscussions } from '@/lib/demoStorage';
 import type { Discussion, EventSortOption } from '@/types/discussions';
 
 // Demo events data

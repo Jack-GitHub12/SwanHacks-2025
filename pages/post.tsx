@@ -129,7 +129,7 @@ export default function Post() {
 
       const listingData: Listing = {
         id: `demo-${Date.now()}`,
-        user_id: user?.id || null,
+        user_id: user?.id,
         course_code: formData.course_code.trim().toUpperCase(),
         book_title: formData.book_title.trim(),
         price: Number(formData.price),

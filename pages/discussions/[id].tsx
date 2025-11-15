@@ -123,7 +123,7 @@ export default function DiscussionDetail() {
     try {
       if (DEMO_MODE) {
         // Load replies from session storage (persists during session)
-        const sessionReplies = getDemoReplies(discussionId, DEMO_REPLIES);
+        const sessionReplies = getDemoReplies(id as string, DEMO_REPLIES);
         setReplies(sessionReplies);
         
         // Update reply count to match actual replies

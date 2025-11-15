@@ -30,7 +30,7 @@ const VoteButtons: React.FC<VoteButtonsProps> = ({
       if (DEMO_MODE) {
         // Load vote from session storage
         const savedVote = getDemoVote(discussionId);
-        setUserVote(savedVote);
+        setUserVote(savedVote as 'up' | 'down' | null);
       } else {
         loadUserVote();
       }
