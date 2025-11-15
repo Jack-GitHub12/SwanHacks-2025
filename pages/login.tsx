@@ -46,8 +46,8 @@ export default function Login() {
       if (data.user && data.session) {
         console.log('Login successful for:', data.user.email);
         
-        // Wait for the session to be fully stored in localStorage
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Brief wait for the session to be stored in localStorage
+        await new Promise(resolve => setTimeout(resolve, 300));
 
         // Redirect to home page using window.location for full page reload
         window.location.href = '/';

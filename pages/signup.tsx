@@ -70,8 +70,8 @@ export default function SignUp() {
         // If user is immediately confirmed (no email verification required)
         if (data.session) {
           console.log('User session created immediately');
-          // Wait for session to be stored
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          // Brief wait for session to be stored
+          await new Promise(resolve => setTimeout(resolve, 300));
           // Redirect using window.location for full page reload
           window.location.href = '/';
         } else {
@@ -80,7 +80,7 @@ export default function SignUp() {
           // Redirect after showing success message
           setTimeout(() => {
             window.location.href = '/';
-          }, 3000);
+          }, 2000);
         }
       }
     } catch (err: any) {

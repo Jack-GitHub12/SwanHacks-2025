@@ -8,6 +8,7 @@ export default function AuthCallback() {
 
   useEffect(() => {
     let redirected = false;
+    let authSubscription: any = null;
 
     // Handle the OAuth callback
     const handleCallback = async () => {
@@ -29,44 +30,40 @@ export default function AuthCallback() {
           return;
         }
 
-        console.log('Waiting for authentication to complete...');
+        // Listen for auth state changes for instant redirect
+        authSubscription = supabase.auth.onAuthStateChange((event, session) => {
+          console.log('Auth event in callback:', event);
+          
+          if (event === 'SIGNED_IN' && session?.user && !redirected) {
+            console.log('Auth successful! User:', session.user.email);
+            console.log('Redirecting to home page...');
+            redirected = true;
+            window.location.href = '/';
+          }
+        });
 
-        // Wait a bit for Supabase to automatically handle the PKCE code exchange
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        // Check if we have a session
+        // Also check immediately if we already have a session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
         if (sessionError) {
           console.error('Session error:', sessionError);
-          setError('Authentication failed. Please try again.');
-          setTimeout(() => {
-            if (!redirected) {
-              redirected = true;
-              window.location.href = '/login?error=auth_failed';
-            }
-          }, 2000);
-          return;
         }
 
-        if (session?.user) {
-          console.log('Auth successful! User:', session.user.email);
+        if (session?.user && !redirected) {
+          console.log('Session already exists! User:', session.user.email);
           console.log('Redirecting to home page...');
-          
-          // Ensure redirect happens
-          if (!redirected) {
-            redirected = true;
-            window.location.href = '/';
-          }
-        } else {
-          console.log('No session found, redirecting to login');
-          setTimeout(() => {
-            if (!redirected) {
-              redirected = true;
-              window.location.href = '/login';
-            }
-          }, 1000);
+          redirected = true;
+          window.location.href = '/';
         }
+
+        // Fallback: if no session after 3 seconds, redirect to login
+        setTimeout(() => {
+          if (!redirected) {
+            console.log('Timeout: No session found, redirecting to login');
+            redirected = true;
+            window.location.href = '/login';
+          }
+        }, 3000);
       } catch (err) {
         console.error('Callback error:', err);
         setError('An unexpected error occurred.');
@@ -84,9 +81,12 @@ export default function AuthCallback() {
       handleCallback();
     }
 
-    // Cleanup to prevent redirect after unmount
+    // Cleanup
     return () => {
       redirected = true;
+      if (authSubscription?.data?.subscription) {
+        authSubscription.data.subscription.unsubscribe();
+      }
     };
   }, []);
 
