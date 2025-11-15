@@ -49,33 +49,69 @@ export default function Browse() {
   }, [listings, departmentFilter, courseFilter, sortBy, searchQuery]);
 
   const loadListings = async () => {
+    // Set a timeout to prevent infinite loading
+    const loadTimeout = setTimeout(() => {
+      console.warn('Loading timeout - falling back to demo data');
+      setListings(DEMO_LISTINGS);
+      setLoading(false);
+    }, 5000); // 5 second timeout
+
     try {
       if (DEMO_MODE) {
         console.log('Using DEMO_MODE');
+        clearTimeout(loadTimeout);
         setListings(DEMO_LISTINGS);
-      } else {
-        console.log('Fetching listings from Supabase...');
-        // Simplified query - just use * to get all columns for now
-        const { data, error } = await supabase
-          .from('listings')
-          .select('*')
-          .eq('status', 'active')
-          .order('created_at', { ascending: false })
-          .limit(100);
+        setLoading(false);
+        return;
+      }
 
-        if (error) {
-          console.error('Supabase query error:', error);
-          throw error;
-        }
-        
-        console.log('Listings loaded:', data?.length || 0);
-        setListings(data || []);
+      console.log('Fetching listings from Supabase...');
+      console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+      
+      // Check if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Session exists:', !!session);
+      
+      if (!session) {
+        console.warn('No active session - user may need to log in');
+        clearTimeout(loadTimeout);
+        setLoading(false);
+        return;
+      }
+
+      // Try to fetch listings
+      const { data, error } = await supabase
+        .from('listings')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false })
+        .limit(100);
+
+      clearTimeout(loadTimeout);
+
+      if (error) {
+        console.error('Supabase query error:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
+        throw error;
+      }
+      
+      console.log('Listings loaded successfully:', data?.length || 0);
+      
+      // If no data, use demo listings
+      if (!data || data.length === 0) {
+        console.warn('No listings found in database - using demo data');
+        setListings(DEMO_LISTINGS.slice(0, 10)); // Show 10 demo listings
+      } else {
+        setListings(data);
       }
     } catch (error) {
+      clearTimeout(loadTimeout);
       console.error('Error loading listings:', error);
       console.log('Falling back to DEMO_LISTINGS');
-      setListings(DEMO_LISTINGS);
+      // Always fallback to demo data on error
+      setListings(DEMO_LISTINGS.slice(0, 10));
     } finally {
+      clearTimeout(loadTimeout);
       setLoading(false);
     }
   };
