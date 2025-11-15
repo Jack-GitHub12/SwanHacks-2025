@@ -39,6 +39,30 @@ export default async function handler(
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   try {
+    // Demo mode: Return mock enhanced description
+    if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
+      const { courseCode, bookTitle, currentNotes } = req.body;
+
+      // Security: Input validation even in demo mode
+      if (!courseCode || !bookTitle) {
+        return res.status(400).json({ error: 'Missing required fields' });
+      }
+
+      // Simulate AI processing delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      // Generate a realistic demo enhancement
+      const demoEnhancement = currentNotes
+        ? `${currentNotes}\n\nEnhanced with AI: This textbook for ${courseCode} is in great condition and includes all chapters needed for the course. Perfect for students looking for a reliable study resource.`
+        : `This textbook for ${courseCode} (${bookTitle}) is in excellent condition with minimal wear. All pages are intact and readable. Great resource for mastering the course material. Includes practice problems and comprehensive explanations.`;
+
+      return res.status(200).json({
+        enhancedDescription: demoEnhancement,
+        tokensUsed: 0,
+        demo: true
+      });
+    }
+
     // Check if OpenRouter API key is configured
     if (!process.env.OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY === 'your_openrouter_api_key') {
       return res.status(503).json({

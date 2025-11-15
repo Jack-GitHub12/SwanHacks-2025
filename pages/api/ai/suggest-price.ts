@@ -39,6 +39,31 @@ export default async function handler(
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   try {
+    const { courseCode, bookTitle, condition } = req.body;
+
+    // Security: Input validation
+    if (!courseCode || !bookTitle) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Demo mode: Return mock price suggestion
+    if (process.env.NEXT_PUBLIC_DEMO_MODE === 'true') {
+      // Simulate AI processing delay
+      await new Promise(resolve => setTimeout(resolve, 1200));
+
+      // Generate realistic price based on condition
+      const basePrice = 80 + Math.random() * 40; // $80-$120
+      const conditionMultiplier = condition === 'New' ? 1.2 : condition === 'Like New' ? 1.1 : condition === 'Fair' ? 0.8 : 1.0;
+      const suggestedPrice = Math.round(basePrice * conditionMultiplier / 5) * 5; // Round to nearest $5
+
+      return res.status(200).json({
+        suggestedPrice,
+        explanation: `Based on ${courseCode} course materials and ${condition || 'Good'} condition, this is a fair market price.`,
+        tokensUsed: 0,
+        demo: true
+      });
+    }
+
     // Security: Verify authentication
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL || '',
@@ -61,13 +86,6 @@ export default async function handler(
     // Security: Rate limiting
     if (!checkRateLimit(user.id)) {
       return res.status(429).json({ error: 'Too many requests. Please try again later.' });
-    }
-
-    const { courseCode, bookTitle, condition } = req.body;
-
-    // Security: Input validation
-    if (!courseCode || !bookTitle) {
-      return res.status(400).json({ error: 'Missing required fields' });
     }
 
     // Security: Sanitize inputs (limit length)
