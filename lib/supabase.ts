@@ -73,7 +73,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'CS 161',
     book_title: 'Introduction to Computer Science',
     price: 65,
-    contact_info: '555-0123',
+    contact_info: 'jsmith@iastate.edu',
     condition: 'Good',
     notes: 'Some highlighting on first three chapters, otherwise great condition',
     status: 'active'
@@ -84,7 +84,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'CS 162',
     book_title: 'Object-Oriented Programming',
     price: 75,
-    contact_info: '555-0124',
+    contact_info: '+1.515.294.1234',
     condition: 'Like New',
     notes: 'Used for one semester, minimal wear',
     status: 'active'
@@ -106,7 +106,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'CS 228',
     book_title: 'Introduction to Data Structures',
     price: 60,
-    contact_info: '555-0125',
+    contact_info: 'datastructs@iastate.edu',
     condition: 'Good',
     notes: 'Previous edition but content is relevant',
     status: 'active'
@@ -128,7 +128,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'CS 311',
     book_title: 'Design and Analysis of Algorithms',
     price: 95,
-    contact_info: '555-0126',
+    contact_info: 'algorithms@iastate.edu',
     condition: 'Good',
     notes: 'Well-used but perfectly readable',
     status: 'active'
@@ -141,7 +141,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'MATH 165',
     book_title: 'Calculus I',
     price: 110,
-    contact_info: '555-0127',
+    contact_info: 'mathcalc@iastate.edu',
     condition: 'Like New',
     notes: 'Barely used, no marks or highlights',
     status: 'active'
@@ -163,7 +163,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'MATH 265',
     book_title: 'Elementary Differential Equations',
     price: 95,
-    contact_info: '555-0128',
+    contact_info: '+1.515.294.5678',
     condition: 'Good',
     notes: 'Includes solution manual',
     status: 'active'
@@ -185,7 +185,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'MATH 267',
     book_title: 'Elementary Differential Equations and Laplace Transforms',
     price: 105,
-    contact_info: '555-0129',
+    contact_info: 'diffeq@iastate.edu',
     condition: 'Good',
     notes: 'Clean copy with minimal highlighting',
     status: 'active'
@@ -198,7 +198,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'CHEM 121',
     book_title: 'General Chemistry: Atoms First',
     price: 150,
-    contact_info: '555-0130',
+    contact_info: 'chemistry@iastate.edu',
     condition: 'New',
     notes: 'Still in plastic wrap, never opened',
     status: 'active'
@@ -220,7 +220,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'CHEM 177',
     book_title: 'Chemistry Laboratory',
     price: 55,
-    contact_info: '555-0131',
+    contact_info: '+1.515.294.2345',
     condition: 'Good',
     notes: 'Lab manual in good condition',
     status: 'active'
@@ -244,7 +244,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'BIO 211',
     book_title: 'Molecular Biology of the Cell',
     price: 140,
-    contact_info: '555-0132',
+    contact_info: 'biology211@iastate.edu',
     condition: 'Like New',
     notes: 'Barely used, excellent condition',
     status: 'active'
@@ -268,7 +268,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'PHYS 201',
     book_title: 'University Physics Volume 1',
     price: 100,
-    contact_info: '555-0133',
+    contact_info: 'physics201@iastate.edu',
     condition: 'Good',
     notes: 'Includes online access code unused',
     status: 'active'
@@ -292,7 +292,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'ECON 101',
     book_title: 'Principles of Microeconomics',
     price: 65,
-    contact_info: '555-0134',
+    contact_info: '+1.515.294.3456',
     condition: 'Good',
     notes: 'Standard textbook, good condition',
     status: 'active'
@@ -314,7 +314,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'ACCT 284',
     book_title: 'Financial Accounting',
     price: 130,
-    contact_info: '555-0135',
+    contact_info: 'accounting@iastate.edu',
     condition: 'Like New',
     notes: 'Purchased but switched majors',
     status: 'active'
@@ -336,7 +336,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'MGMT 370',
     book_title: 'Management and Organizations',
     price: 85,
-    contact_info: '555-0136',
+    contact_info: 'management@iastate.edu',
     condition: 'Good',
     notes: 'Light use, good for class',
     status: 'active'
@@ -349,7 +349,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'E E 201',
     book_title: 'Electric Circuits Fundamentals',
     price: 145,
-    contact_info: '555-0137',
+    contact_info: '+1.515.294.4567',
     condition: 'Like New',
     notes: 'Includes practice problems book',
     status: 'active'
@@ -371,7 +371,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'CPR E 288',
     book_title: 'Embedded Systems I',
     price: 110,
-    contact_info: '555-0138',
+    contact_info: 'embeddedsys@iastate.edu',
     condition: 'Good',
     notes: 'Great resource for the class',
     status: 'active'
@@ -395,7 +395,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'ENG 101',
     book_title: 'College Writing',
     price: 45,
-    contact_info: '555-0139',
+    contact_info: 'engwriting@iastate.edu',
     condition: 'Good',
     notes: 'Standard writing textbook',
     status: 'active'
@@ -417,7 +417,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'HIST 201',
     book_title: 'American History Since 1877',
     price: 70,
-    contact_info: '555-0140',
+    contact_info: '+1.515.294.5678',
     condition: 'Good',
     notes: 'Some highlighting in key chapters',
     status: 'active'
@@ -441,7 +441,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'PSY 101',
     book_title: 'Psychology: Core Concepts',
     price: 75,
-    contact_info: '555-0141',
+    contact_info: 'psychology@iastate.edu',
     condition: 'Good',
     notes: 'Has some wear but all pages intact',
     status: 'active'
@@ -463,7 +463,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'SOC 134',
     book_title: 'Introduction to Sociology',
     price: 68,
-    contact_info: '555-0142',
+    contact_info: 'sociology@iastate.edu',
     condition: 'Good',
     notes: 'Minor highlighting, good for class',
     status: 'active'
@@ -487,7 +487,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'CS 290',
     book_title: 'Discrete Computational Structures',
     price: 82,
-    contact_info: '555-0143',
+    contact_info: '+1.515.294.6789',
     condition: 'Good',
     notes: 'Practice problems included',
     status: 'active'
@@ -509,7 +509,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'CS 325',
     book_title: 'Software Engineering Principles',
     price: 92,
-    contact_info: '555-0144',
+    contact_info: 'sweng@iastate.edu',
     condition: 'Good',
     notes: 'Great for the course projects',
     status: 'active'
@@ -533,7 +533,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'MATH 317',
     book_title: 'Theory of Linear Algebra',
     price: 92,
-    contact_info: '555-0145',
+    contact_info: 'linearalg@iastate.edu',
     condition: 'Like New',
     notes: 'Advanced math text, excellent condition',
     status: 'active'
@@ -546,7 +546,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'CHEM 231',
     book_title: 'Organic Chemistry I',
     price: 165,
-    contact_info: '555-0146',
+    contact_info: '+1.515.294.7890',
     condition: 'Like New',
     notes: 'Expensive new, great deal used',
     status: 'active'
@@ -568,7 +568,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'PHYS 222',
     book_title: 'Physics II with Calculus',
     price: 110,
-    contact_info: '555-0147',
+    contact_info: 'physics222@iastate.edu',
     condition: 'Good',
     notes: 'Includes study guide',
     status: 'active'
@@ -592,7 +592,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'ACCT 285',
     book_title: 'Managerial Accounting',
     price: 125,
-    contact_info: '555-0148',
+    contact_info: 'manacct@iastate.edu',
     condition: 'Good',
     notes: 'All chapters covered, readable',
     status: 'active'
@@ -616,7 +616,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'AER E 160',
     book_title: 'Introduction to Aerospace Engineering',
     price: 105,
-    contact_info: '555-0149',
+    contact_info: '+1.515.294.8901',
     condition: 'Like New',
     notes: 'Great intro to aero engineering',
     status: 'active'
@@ -638,7 +638,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'MAT E 273',
     book_title: 'Materials Science and Engineering',
     price: 138,
-    contact_info: '555-0150',
+    contact_info: 'materials@iastate.edu',
     condition: 'Like New',
     notes: 'Comprehensive materials guide',
     status: 'active'
@@ -662,7 +662,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'HIST 202',
     book_title: 'American History to 1877',
     price: 68,
-    contact_info: '555-0151',
+    contact_info: 'history@iastate.edu',
     condition: 'Good',
     notes: 'Complete with all chapters',
     status: 'active'
@@ -686,7 +686,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'SOC 235',
     book_title: 'Sociology of Deviance',
     price: 78,
-    contact_info: '555-0152',
+    contact_info: '+1.515.294.9012',
     condition: 'Like New',
     notes: 'Fascinating read, great condition',
     status: 'active'
@@ -710,7 +710,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'CS 340',
     book_title: 'Algorithms and Data Structures',
     price: 88,
-    contact_info: '555-0153',
+    contact_info: 'csalgorithms@iastate.edu',
     condition: 'Good',
     notes: 'Essential CS textbook',
     status: 'active'
@@ -732,7 +732,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'CHEM 331',
     book_title: 'Organic Chemistry II',
     price: 170,
-    contact_info: '555-0154',
+    contact_info: 'organchem@iastate.edu',
     condition: 'Good',
     notes: 'Expensive new, save money here',
     status: 'active'
@@ -754,7 +754,7 @@ export const DEMO_LISTINGS: Listing[] = [
     course_code: 'CS 352',
     book_title: 'Operating Systems',
     price: 108,
-    contact_info: '555-0155',
+    contact_info: '+1.515.294.0123',
     condition: 'Like New',
     notes: 'Comprehensive OS textbook',
     status: 'active'
