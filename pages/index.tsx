@@ -37,10 +37,12 @@ export default function Home() {
     }
   }, [user, authLoading, router]);
 
-  // Load listings
+  // Load listings after user is authenticated
   useEffect(() => {
-    loadListings();
-  }, []);
+    if (user) {
+      loadListings();
+    }
+  }, [user]);
 
   // Filter and sort whenever dependencies change
   useEffect(() => {
