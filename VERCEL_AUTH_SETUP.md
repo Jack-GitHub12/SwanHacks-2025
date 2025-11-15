@@ -108,10 +108,8 @@ Your environment variables should already be set, but verify:
 - Must be: `https://xapazebllxyonzrtrmcj.supabase.co/auth/v1/callback`
 - This is your Supabase auth callback, NOT your app URL
 
-### Issue: "Email domain not allowed"
-**Solution:** This is expected! The app only allows:
-- `@iastate.edu` emails (primary)
-- `@gmail.com` emails (for testing)
+### Issue: Invalid email address
+**Solution:** The app now accepts all valid email addresses from any domain.
 
 ### Issue: Login works locally but not on Vercel
 **Solution:**

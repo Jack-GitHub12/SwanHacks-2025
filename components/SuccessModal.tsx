@@ -13,7 +13,7 @@ const SuccessModal: React.FC<SuccessModalProps> = ({ isOpen, onClose, onPostAnot
   useEffect(() => {
     if (isOpen) {
       // Create confetti effect
-      const colors = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+      const colors = ['#C8102E', '#f59e0b', '#ef4444', '#b91c1c', '#d97706'];
       const confettiCount = 50;
 
       for (let i = 0; i < confettiCount; i++) {

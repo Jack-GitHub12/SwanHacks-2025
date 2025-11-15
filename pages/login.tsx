@@ -26,7 +26,7 @@ export default function Login() {
   useEffect(() => {
     const errorParam = router.query.error;
     if (errorParam === 'invalid_email') {
-      setError('Please use your Iowa State email address (@iastate.edu)');
+      setError('Invalid email address. Please try again.');
     }
   }, [router.query]);
 
@@ -43,16 +43,18 @@ export default function Login() {
 
       if (signInError) throw signInError;
 
-      if (data.user) {
-        // Wait for the session to be fully established
-        await new Promise(resolve => setTimeout(resolve, 500));
+      if (data.user && data.session) {
+        console.log('Login successful for:', data.user.email);
+        
+        // Wait for the session to be fully stored in localStorage
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // Redirect to home page
+        // Redirect to home page using window.location for full page reload
         window.location.href = '/';
       }
     } catch (err: any) {
+      console.error('Login error:', err);
       setError(err.message || 'Failed to sign in');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -62,19 +64,32 @@ export default function Login() {
     setError('');
 
     try {
-      const { error: signInError } = await supabase.auth.signInWithOAuth({
+      const redirectUrl = typeof window !== 'undefined' 
+        ? `${window.location.origin}/auth/callback`
+        : 'https://booksterisu.vercel.app/auth/callback';
+
+      console.log('Starting Google OAuth with redirect:', redirectUrl);
+
+      const { data, error: signInError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
-            prompt: 'consent',
+            prompt: 'select_account',
           },
         },
       });
 
-      if (signInError) throw signInError;
+      if (signInError) {
+        console.error('OAuth error:', signInError);
+        throw signInError;
+      }
+
+      console.log('OAuth redirect initiated:', data);
+      // Don't set loading to false here as we're redirecting
     } catch (err: any) {
+      console.error('Google login error:', err);
       setError(err.message || 'Failed to sign in with Google');
       setIsLoading(false);
     }
@@ -84,7 +99,7 @@ export default function Login() {
     <>
       <Head>
         <title>Sign In - Bookster</title>
-        <meta name="description" content="Sign in to Bookster to buy and sell items with Iowa State students" />
+        <meta name="description" content="Sign in to Bookster to buy and sell items with students" />
       </Head>
 
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-primary-900 to-secondary-900 flex items-center justify-center px-4 py-12 relative">
@@ -198,7 +213,7 @@ export default function Login() {
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@iastate.edu"
+                  placeholder="you@example.com"
                   required
                   className="input-dark"
                 />

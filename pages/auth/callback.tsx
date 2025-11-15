@@ -1,73 +1,74 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { supabase } from '@/lib/supabase';
 
 export default function AuthCallback() {
   const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Handle the OAuth callback
     const handleCallback = async () => {
       try {
-        // Check for OAuth code/error in URL
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const queryParams = new URLSearchParams(window.location.search);
-        
-        // If there's an error parameter, handle it
-        if (queryParams.get('error') || hashParams.get('error')) {
-          console.error('OAuth error:', queryParams.get('error_description') || hashParams.get('error_description'));
-          router.push('/login?error=auth_failed');
-          return;
-        }
+        // Supabase automatically handles the OAuth callback and exchanges the code
+        // We just need to wait for it to complete
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-        // Exchange the code for a session (Supabase handles this automatically)
-        // Wait a bit for the session to be established
-        await new Promise(resolve => setTimeout(resolve, 500));
-
-        // Get the current session after OAuth redirect
-        const { data: { session }, error } = await supabase.auth.getSession();
-
-        if (error) {
-          console.error('Error getting session:', error);
-          router.push('/login?error=auth_failed');
+        if (sessionError) {
+          console.error('Session error:', sessionError);
+          setError('Authentication failed. Please try again.');
+          setTimeout(() => {
+            window.location.href = '/login?error=auth_failed';
+          }, 2000);
           return;
         }
 
         if (session?.user) {
-          // Validate email domain for OAuth sign-ins
           const email = session.user.email;
           const provider = session.user.app_metadata?.provider;
 
-          // If signing in with Google and not an Iowa State or Gmail email, sign out and redirect
-          if (provider === 'google' && email && !email.endsWith('@iastate.edu') && !email.endsWith('@gmail.com')) {
-            await supabase.auth.signOut();
-            router.push('/login?error=invalid_email');
-            return;
-          }
-
-          // Wait for the session to be fully stored
-          await new Promise(resolve => setTimeout(resolve, 300));
+          console.log('Auth callback - User:', email, 'Provider:', provider);
 
           // Successfully authenticated, redirect to home
+          console.log('Auth successful, redirecting to home...');
           window.location.href = '/';
         } else {
           // No session found, redirect to login
-          router.push('/login');
+          console.log('No session found, redirecting to login');
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 1000);
         }
       } catch (err) {
         console.error('Callback error:', err);
-        router.push('/login?error=auth_failed');
+        setError('An unexpected error occurred.');
+        setTimeout(() => {
+          window.location.href = '/login?error=auth_failed';
+        }, 2000);
       }
     };
 
-    handleCallback();
+    // Only run on client side
+    if (typeof window !== 'undefined') {
+      handleCallback();
+    }
   }, [router]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-primary-900 to-secondary-900 flex items-center justify-center">
       <div className="text-center">
-        <div className="spinner w-12 h-12 border-white mx-auto mb-4" />
-        <p className="text-white text-lg">Completing sign in...</p>
+        {error ? (
+          <>
+            <div className="text-red-400 text-xl mb-4">⚠️</div>
+            <p className="text-white text-lg">{error}</p>
+            <p className="text-gray-400 text-sm mt-2">Redirecting...</p>
+          </>
+        ) : (
+          <>
+            <div className="spinner w-12 h-12 border-white mx-auto mb-4" />
+            <p className="text-white text-lg">Completing sign in...</p>
+          </>
+        )}
       </div>
     </div>
   );

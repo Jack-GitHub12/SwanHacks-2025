@@ -222,7 +222,7 @@ export default function Landing() {
                 <Link href="/signup">
                   <motion.button
                     className="group relative btn-gradient text-lg px-8 py-4 shadow-2xl overflow-hidden"
-                    whileHover={{ scale: 1.05, boxShadow: "0 20px 60px rgba(37, 99, 235, 0.5)" }}
+                    whileHover={{ scale: 1.05, boxShadow: "0 20px 60px rgba(200, 16, 46, 0.5)" }}
                     whileTap={{ scale: 0.95 }}
                   >
                     <span className="relative z-10 flex items-center">

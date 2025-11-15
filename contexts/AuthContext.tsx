@@ -61,48 +61,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    let mounted = true;
+
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user?.id) {
-        loadProfile(session.user.id);
+    const initAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+        }
+        
+        if (!mounted) return;
+
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        if (session?.user?.id) {
+          await loadProfile(session.user.id);
+        }
+      } catch (error) {
+        console.error('Error initializing auth:', error);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
-      setLoading(false);
-    });
+    };
+
+    initAuth();
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      // Validate Iowa State email for OAuth sign-ins
-      if (event === 'SIGNED_IN' && session?.user) {
-        const email = session.user.email;
-        const provider = session.user.app_metadata?.provider;
-        
-        // If signing in with OAuth (Google) and not an Iowa State email, sign out
-        if (provider === 'google' && email && !email.endsWith('@iastate.edu') && !email.endsWith('@gmail.com')) {
-          await supabase.auth.signOut();
-          setSession(null);
-          setUser(null);
-          setLoading(false);
-          // You might want to show an error message here
-          if (typeof window !== 'undefined') {
-            window.location.href = '/login?error=invalid_email';
-          }
-          return;
-        }
-      }
-      
+      console.log('Auth state change:', event, session?.user?.email);
+
+      if (!mounted) return;
+
       setSession(session);
       setUser(session?.user ?? null);
+      
       if (session?.user?.id) {
-        loadProfile(session.user.id);
+        await loadProfile(session.user.id);
+      } else {
+        setProfile(null);
       }
+      
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {

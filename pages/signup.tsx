@@ -16,10 +16,9 @@ export default function SignUp() {
   const [success, setSuccess] = useState(false);
 
   const validateEmail = (email: string) => {
-    // Check if it's an iastate.edu email or allow gmail for Google OAuth
-    const isISUEmail = email.toLowerCase().endsWith('@iastate.edu');
-    const isGmail = email.toLowerCase().endsWith('@gmail.com');
-    return isISUEmail || isGmail;
+    // Allow all valid email addresses
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
   const handleEmailSignUp = async (e: React.FormEvent) => {
@@ -30,7 +29,7 @@ export default function SignUp() {
 
     // Validation
     if (!validateEmail(email)) {
-      setError('Please use your Iowa State email (@iastate.edu)');
+      setError('Please enter a valid email address');
       setIsLoading(false);
       return;
     }
@@ -48,26 +47,45 @@ export default function SignUp() {
     }
 
     try {
+      const redirectUrl = typeof window !== 'undefined' 
+        ? `${window.location.origin}/`
+        : 'https://booksterisu.vercel.app/';
+
+      console.log('Signing up with email:', email);
+
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: redirectUrl,
         },
       });
 
       if (signUpError) throw signUpError;
 
       if (data.user) {
+        console.log('Signup successful:', data.user.email);
         setSuccess(true);
-        // Redirect after 2 seconds
-        setTimeout(() => {
-          router.push('/');
-        }, 2000);
+        
+        // If user is immediately confirmed (no email verification required)
+        if (data.session) {
+          console.log('User session created immediately');
+          // Wait for session to be stored
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          // Redirect using window.location for full page reload
+          window.location.href = '/';
+        } else {
+          // Email verification required
+          console.log('Email verification required');
+          // Redirect after showing success message
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 3000);
+        }
       }
     } catch (err: any) {
+      console.error('Signup error:', err);
       setError(err.message || 'Failed to sign up');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -77,20 +95,32 @@ export default function SignUp() {
     setError('');
 
     try {
-      const { error: signUpError } = await supabase.auth.signInWithOAuth({
+      const redirectUrl = typeof window !== 'undefined' 
+        ? `${window.location.origin}/auth/callback`
+        : 'https://booksterisu.vercel.app/auth/callback';
+
+      console.log('Starting Google OAuth signup with redirect:', redirectUrl);
+
+      const { data, error: signUpError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
-            prompt: 'consent',
-            hd: 'iastate.edu', // Hint for Iowa State domain
+            prompt: 'select_account',
           },
         },
       });
 
-      if (signUpError) throw signUpError;
+      if (signUpError) {
+        console.error('OAuth signup error:', signUpError);
+        throw signUpError;
+      }
+
+      console.log('OAuth signup redirect initiated:', data);
+      // Don't set loading to false here as we're redirecting
     } catch (err: any) {
+      console.error('Google signup error:', err);
       setError(err.message || 'Failed to sign up with Google');
       setIsLoading(false);
     }
@@ -100,7 +130,7 @@ export default function SignUp() {
     <>
       <Head>
         <title>Sign Up - Bookster</title>
-        <meta name="description" content="Create your Bookster account and start buying and selling items with Iowa State students" />
+        <meta name="description" content="Create your Bookster account and start buying and selling items with students" />
       </Head>
 
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-primary-900 to-secondary-900 flex items-center justify-center px-4 py-12 relative">
@@ -165,7 +195,7 @@ export default function SignUp() {
               transition={{ delay: 0.5, duration: 0.6 }}
               className="text-gray-400 text-center mb-8"
             >
-              Join the Iowa State community
+              Join the Bookster community
             </motion.p>
 
             {/* Success Message */}
@@ -219,14 +249,13 @@ export default function SignUp() {
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
                   Email Address
-                  <span className="text-xs text-gray-500 ml-2">(Iowa State email)</span>
                 </label>
                 <input
                   type="email"
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@iastate.edu"
+                  placeholder="you@example.com"
                   required
                   className="input-dark"
                 />
