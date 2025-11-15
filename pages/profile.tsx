@@ -45,8 +45,24 @@ export default function Profile() {
   const loadProfile = async () => {
     if (!user) return;
 
+    // Set a timeout to prevent infinite loading
+    const loadTimeout = setTimeout(() => {
+      console.warn('Profile loading timeout - using default profile');
+      setFormData({
+        username: user.email?.split('@')[0] || '',
+        display_name: user.email?.split('@')[0] || 'User',
+        avatar_url: '',
+        bio: '',
+        major: '',
+        graduation_year: undefined,
+      });
+      setIsLoading(false);
+    }, 5000);
+
     try {
       if (DEMO_MODE) {
+        console.log('Using DEMO_MODE for profile');
+        clearTimeout(loadTimeout);
         setFormData({
           username: user.email?.split('@')[0] || '',
           display_name: 'Demo User',
@@ -59,15 +75,21 @@ export default function Profile() {
         return;
       }
 
+      console.log('Fetching profile from Supabase...');
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
         .eq('id', user.id)
         .single();
 
+      clearTimeout(loadTimeout);
+
       if (error && error.code !== 'PGRST116') {
+        console.error('Profile load error:', error);
         throw error;
       }
+
+      console.log('Profile loaded:', !!data);
 
       if (data) {
         setProfile(data);
@@ -81,15 +103,31 @@ export default function Profile() {
         });
       } else {
         // No profile yet, use email as default username
+        console.log('No existing profile - creating default');
         setFormData({
-          ...formData,
           username: user.email?.split('@')[0] || '',
+          display_name: user.email?.split('@')[0] || 'User',
+          avatar_url: '',
+          bio: '',
+          major: '',
+          graduation_year: undefined,
         });
       }
     } catch (error) {
+      clearTimeout(loadTimeout);
       console.error('Error loading profile:', error);
-      setError('Failed to load profile');
+      setError('Failed to load profile. Using defaults.');
+      // Set default values on error
+      setFormData({
+        username: user.email?.split('@')[0] || '',
+        display_name: user.email?.split('@')[0] || 'User',
+        avatar_url: '',
+        bio: '',
+        major: '',
+        graduation_year: undefined,
+      });
     } finally {
+      clearTimeout(loadTimeout);
       setIsLoading(false);
     }
   };
