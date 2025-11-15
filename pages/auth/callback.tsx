@@ -36,9 +36,9 @@ export default function AuthCallback() {
           
           if (event === 'SIGNED_IN' && session?.user && !redirected) {
             console.log('Auth successful! User:', session.user.email);
-            console.log('Redirecting to home page...');
+            console.log('Redirecting to marketplace...');
             redirected = true;
-            window.location.href = '/';
+            window.location.href = '/marketplace';
           }
         });
 
