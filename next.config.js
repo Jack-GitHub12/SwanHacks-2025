@@ -28,6 +28,17 @@ const nextConfig = {
     optimizePackageImports: ['@chakra-ui/react', 'framer-motion'],
   },
   
+  // Redirects for moved pages
+  async redirects() {
+    return [
+      {
+        source: '/landing',
+        destination: '/',
+        permanent: true,
+      },
+    ];
+  },
+
   // Security headers
   async headers() {
     return [
