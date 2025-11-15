@@ -39,6 +39,16 @@ const Header: React.FC<HeaderProps> = ({ subtitle = 'Your Campus Textbook Market
             transition={{ delay: 0.3 }}
           >
             <Flex align="center" gap={3}>
+              <Link href="/marketplace">
+                <motion.button
+                  className="btn btn-secondary text-sm px-3 py-2"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Box as="span" display={{ base: 'none', sm: 'inline' }}>Marketplace</Box>
+                  <Box as="span" display={{ base: 'inline', sm: 'none' }}>🛒</Box>
+                </motion.button>
+              </Link>
               <Link href="/events">
                 <motion.button
                   className="btn btn-secondary text-sm px-3 py-2"

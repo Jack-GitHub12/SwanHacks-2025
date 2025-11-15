@@ -6,6 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { supabase, DEMO_MODE, COURSE_CODES } from '@/lib/supabase';
 import { isValidCourseCode, isValidContact, formatCourseCode } from '@/lib/utils';
+import { getDemoListings, updateDemoListing } from '@/lib/demoStorage';
 import { useAuth } from '@/contexts/AuthContext';
 import type { FormData } from '@/types';
 
@@ -43,8 +44,26 @@ export default function EditListing() {
   const loadListing = async () => {
     try {
       if (DEMO_MODE) {
-        // In demo mode, just redirect back
-        router.push('/marketplace');
+        // Load from demo storage
+        const listings = getDemoListings([]);
+        const listing = listings.find(l => l.id === id);
+
+        if (!listing) {
+          alert('Listing not found');
+          router.push('/marketplace');
+          return;
+        }
+
+        // Load data into form
+        setFormData({
+          course_code: listing.course_code,
+          book_title: listing.book_title,
+          price: listing.price,
+          contact_info: listing.contact_info,
+          condition: listing.condition || '',
+          notes: listing.notes || '',
+        });
+        setIsLoading(false);
         return;
       }
 
@@ -171,25 +190,38 @@ export default function EditListing() {
 
       if (DEMO_MODE) {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        setSuccessModalOpen(true);
+
+        // Update in demo storage
+        updateDemoListing(id as string, {
+          course_code: formData.course_code.trim().toUpperCase(),
+          book_title: formData.book_title.trim(),
+          price: Number(formData.price),
+          contact_info: formData.contact_info.trim(),
+          condition: formData.condition || null,
+          notes: formData.notes?.trim() || null,
+        }, []);
+
+        // Redirect to marketplace
+        router.push('/marketplace');
         return;
       }
 
       const { error } = await supabase
         .from('listings')
         .update({
-          course_code: formData.course_code,
-          book_title: formData.book_title,
-          price: formData.price,
-          contact_info: formData.contact_info,
+          course_code: formData.course_code.trim().toUpperCase(),
+          book_title: formData.book_title.trim(),
+          price: Number(formData.price),
+          contact_info: formData.contact_info.trim(),
           condition: formData.condition || null,
-          notes: formData.notes || null,
+          notes: formData.notes?.trim() || null,
         })
         .eq('id', id);
 
       if (error) throw error;
 
-      setSuccessModalOpen(true);
+      // Redirect to marketplace
+      router.push('/marketplace');
     } catch (error: any) {
       console.error('Error updating listing:', error);
       alert(error.message || 'Failed to update listing. Please try again.');

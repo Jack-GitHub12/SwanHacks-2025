@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
+import { getDemoProfile } from '@/lib/demoStorage';
 import type { UserProfile } from '@/types/profile';
 
 interface AuthContextType {
@@ -93,15 +94,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setSession(mockSession);
           setUser(mockUser);
 
-          // Set a basic demo profile
-          setProfile({
+          // Load demo profile from localStorage
+          const defaultDemoProfile = {
             id: 'demo-user-id',
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
             username: 'demo',
             display_name: 'Demo User',
             avatar_url: undefined,
-          });
+          };
+
+          const savedProfile = getDemoProfile(defaultDemoProfile);
+          setProfile(savedProfile);
 
           setLoading(false);
           return;

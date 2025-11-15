@@ -127,26 +127,39 @@ export default function Post() {
         throw new Error('You must be logged in to post a listing');
       }
 
-      const listingData: Listing = {
-        id: `demo-${Date.now()}`,
-        user_id: user?.id,
-        course_code: formData.course_code.trim().toUpperCase(),
-        book_title: formData.book_title.trim(),
-        price: Number(formData.price),
-        contact_info: formData.contact_info.trim(),
-        condition: formData.condition || null,
-        notes: formData.notes?.trim() || null,
-        status: 'active' as const,
-        created_at: new Date().toISOString()
-      };
-
       if (DEMO_MODE) {
+        const listingData: Listing = {
+          id: `demo-${Date.now()}`,
+          user_id: user?.id,
+          course_code: formData.course_code.trim().toUpperCase(),
+          book_title: formData.book_title.trim(),
+          price: Number(formData.price),
+          contact_info: formData.contact_info.trim(),
+          condition: formData.condition || null,
+          notes: formData.notes?.trim() || null,
+          status: 'active' as const,
+          created_at: new Date().toISOString()
+        };
+
         // Simulate API call
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
+
         // Save to session storage so it appears in marketplace!
         addDemoListing(listingData, []);
       } else {
+        // For real database, don't include ID - let database generate it
+        const listingData = {
+          user_id: user?.id,
+          course_code: formData.course_code.trim().toUpperCase(),
+          book_title: formData.book_title.trim(),
+          price: Number(formData.price),
+          contact_info: formData.contact_info.trim(),
+          condition: formData.condition || null,
+          notes: formData.notes?.trim() || null,
+          status: 'active' as const,
+          created_at: new Date().toISOString()
+        };
+
         const { error } = await supabase
           .from('listings')
           .insert([listingData]);

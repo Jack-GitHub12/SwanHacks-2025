@@ -95,6 +95,8 @@ const VoteButtons: React.FC<VoteButtonsProps> = ({
       }
 
       // Real database operation
+      const oldVote = userVote;
+
       if (userVote === voteType) {
         // Remove vote
         await supabase
@@ -102,7 +104,33 @@ const VoteButtons: React.FC<VoteButtonsProps> = ({
           .delete()
           .eq('discussion_id', discussionId)
           .eq('user_id', user.id);
+
         setUserVote(null);
+
+        // Update discussion vote counts
+        const upvoteChange = voteType === 'up' ? -1 : 0;
+        const downvoteChange = voteType === 'down' ? -1 : 0;
+        const scoreChange = voteType === 'up' ? -1 : 1;
+
+        await supabase.rpc('update_discussion_votes', {
+          p_discussion_id: discussionId,
+          p_upvote_change: upvoteChange,
+          p_downvote_change: downvoteChange,
+          p_score_change: scoreChange,
+        }).then(result => {
+          // If RPC doesn't exist, update directly
+          if (result.error?.code === '42883') {
+            return supabase
+              .from('discussions')
+              .update({
+                upvotes: upvotes + upvoteChange,
+                downvotes: downvotes + downvoteChange,
+                vote_score: voteScore + scoreChange,
+              })
+              .eq('id', discussionId);
+          }
+          return result;
+        });
       } else {
         // Upsert vote
         await supabase
@@ -112,10 +140,46 @@ const VoteButtons: React.FC<VoteButtonsProps> = ({
             user_id: user.id,
             vote_type: voteType,
           });
+
         setUserVote(voteType);
+
+        // Update discussion vote counts
+        let upvoteChange = 0;
+        let downvoteChange = 0;
+        let scoreChange = 0;
+
+        if (voteType === 'up') {
+          upvoteChange = oldVote === 'down' ? 0 : 1;
+          downvoteChange = oldVote === 'down' ? -1 : 0;
+          scoreChange = oldVote === 'down' ? 2 : 1;
+        } else {
+          downvoteChange = oldVote === 'up' ? 0 : 1;
+          upvoteChange = oldVote === 'up' ? -1 : 0;
+          scoreChange = oldVote === 'up' ? -2 : -1;
+        }
+
+        await supabase.rpc('update_discussion_votes', {
+          p_discussion_id: discussionId,
+          p_upvote_change: upvoteChange,
+          p_downvote_change: downvoteChange,
+          p_score_change: scoreChange,
+        }).then(result => {
+          // If RPC doesn't exist, update directly
+          if (result.error?.code === '42883') {
+            return supabase
+              .from('discussions')
+              .update({
+                upvotes: upvotes + upvoteChange,
+                downvotes: downvotes + downvoteChange,
+                vote_score: voteScore + scoreChange,
+              })
+              .eq('id', discussionId);
+          }
+          return result;
+        });
       }
 
-      // Reload counts
+      // Reload counts to ensure sync
       await loadVoteCounts();
     } catch (error) {
       console.error('Error voting:', error);

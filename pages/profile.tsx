@@ -134,8 +134,6 @@ export default function Profile() {
 
     try {
       if (DEMO_MODE) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
         // Convert image to base64 so it persists in localStorage
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -185,7 +183,6 @@ export default function Profile() {
         setMessage('Image uploaded successfully!');
         setSelectedFile(null);
         setPreviewUrl('');
-        setTimeout(() => setMessage(''), 3000);
       }
     } catch (error: any) {
       console.error('Error uploading image:', error);
