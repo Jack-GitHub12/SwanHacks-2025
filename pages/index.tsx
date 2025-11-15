@@ -32,7 +32,8 @@ export default function Home() {
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push('/login');
+      // Use replace to avoid adding to browser history
+      router.replace('/login');
     }
   }, [user, authLoading, router]);
 

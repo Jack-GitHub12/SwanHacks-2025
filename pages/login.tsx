@@ -5,13 +5,22 @@ import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import { supabase } from '@/lib/supabase';
 import Logo from '@/components/Logo';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Login() {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Redirect to home if already logged in
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.replace('/');
+    }
+  }, [user, authLoading, router]);
 
   // Check for OAuth error in URL
   useEffect(() => {
@@ -35,7 +44,11 @@ export default function Login() {
       if (signInError) throw signInError;
 
       if (data.user) {
-        router.push('/');
+        // Wait for the session to be fully established
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Redirect to home page
+        window.location.href = '/';
       }
     } catch (err: any) {
       setError(err.message || 'Failed to sign in');
