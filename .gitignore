@@ -35,6 +35,10 @@ yarn-error.log*
 *.pem
 *.key
 
+# Environment setup files with actual keys
+VERCEL_ENV_SETUP.txt
+*_ENV_SETUP.txt
+
 # vercel
 .vercel
 

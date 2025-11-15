@@ -5,19 +5,19 @@
 Variable 1:
 -----------
 Name: NEXT_PUBLIC_SUPABASE_URL
-Value: https://xapazebllxyonzrtrmcj.supabase.co
+Value: [YOUR_SUPABASE_PROJECT_URL]
 Environments: Production, Preview, Development
 
 Variable 2:
 -----------
 Name: NEXT_PUBLIC_SUPABASE_ANON_KEY
-Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhcGF6ZWJsbHh5b256cnRybWNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMxNjQyODUsImV4cCI6MjA3ODc0MDI4NX0.MoV8K0VQHsdAyvYhOx4FGqvuwWhGwFt2iW95-lbEVVc
+Value: [YOUR_SUPABASE_ANON_KEY]
 Environments: Production, Preview, Development
 
 Variable 3:
 -----------
 Name: OPENROUTER_API_KEY
-Value: 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
+Value: [YOUR_OPENROUTER_API_KEY]
 Environments: Production, Preview, Development
 
 =================================================================
@@ -48,4 +48,5 @@ Environments: Production, Preview, Development
 8. Test at: https://booksterisu.vercel.app/login
 
 =================================================================
+
 
