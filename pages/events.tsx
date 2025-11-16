@@ -328,6 +328,21 @@ export default function Events() {
     }
   }, [user, authLoading, router]);
 
+  // Initialize events on mount if in demo mode
+  useEffect(() => {
+    // Check immediately if we're in demo mode and initialize
+    if (typeof window !== 'undefined' && (localStorage.getItem('isDemoUser') === 'true' || process.env.NEXT_PUBLIC_DEMO_MODE === 'true')) {
+      console.log('[Events] Demo mode detected on mount, initializing data');
+      if (events.length === 0) {
+        const allData = getDemoDiscussions([...DEMO_EVENTS, ...DEMO_DISCUSSIONS]);
+        const demoEvents = allData.filter(d => d.category === 'events' || d.event_date);
+        console.log('[Events] Setting initial demo data:', demoEvents.length);
+        setEvents(demoEvents);
+        setLoading(false);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     if (user) {
       loadEvents();

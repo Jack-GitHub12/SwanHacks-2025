@@ -136,16 +136,22 @@ export default function Profile() {
     setError('');
 
     try {
+      console.log('[Profile] Uploading image, isDemoMode:', isDemoMode());
+      console.log('[Profile] Selected file:', selectedFile.name);
+
       if (isDemoMode()) {
+        console.log('[Profile] Converting image to base64 for demo mode');
         // Convert image to base64 so it persists in localStorage
         const reader = new FileReader();
         reader.onloadend = () => {
           const base64String = reader.result as string;
+          console.log('[Profile] Image converted to base64, length:', base64String.length);
           const updatedFormData = { ...formData, avatar_url: base64String };
           setFormData(updatedFormData);
           // Save to localStorage so it persists across sessions!
           setDemoProfile(updatedFormData);
-          setMessage('Image uploaded successfully!');
+          console.log('[Profile] Profile saved with new avatar');
+          setMessage('Image uploaded successfully! Click "Save Profile" to persist changes.');
           setSelectedFile(null);
           setPreviewUrl('');
           setIsUploading(false);
@@ -206,15 +212,21 @@ export default function Profile() {
         throw new Error('Not authenticated');
       }
 
+      console.log('[Profile] Saving profile, isDemoMode:', isDemoMode());
+      console.log('[Profile] Form data:', formData);
+
       if (isDemoMode()) {
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         // Save to session storage so it persists
+        console.log('[Profile] Saving to demo storage:', formData);
         setDemoProfile(formData);
 
         // Refresh the profile in AuthContext to update navbar avatar
+        console.log('[Profile] Refreshing profile in AuthContext');
         await refreshProfile();
 
+        console.log('[Profile] Profile saved successfully!');
         setMessage('Profile updated successfully!');
         setTimeout(() => setMessage(''), 3000);
         setIsSaving(false);

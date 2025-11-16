@@ -57,9 +57,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const refreshProfile = async () => {
+    console.log('[AuthContext] refreshProfile called, user:', user?.email);
     if (user?.id) {
       // Check if demo user
       const isDemoUser = typeof window !== 'undefined' && localStorage.getItem('isDemoUser') === 'true';
+      console.log('[AuthContext] Is demo user:', isDemoUser);
 
       if (isDemoUser) {
         // Reload demo profile from localStorage
@@ -73,6 +75,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
 
         const savedProfile = getDemoProfile(defaultDemoProfile);
+        console.log('[AuthContext] Refreshed demo profile:', savedProfile);
         setProfile(savedProfile);
       } else {
         await loadProfile(user.id);
