@@ -9,19 +9,27 @@ export default function AuthCallback() {
   useEffect(() => {
     let redirected = false;
     let authSubscription: any = null;
+    let redirectTimer: NodeJS.Timeout | null = null;
 
     // Handle the OAuth callback
     const handleCallback = async () => {
       try {
+        console.log('[OAuth Callback] Starting callback handler');
+        console.log('[OAuth Callback] Current URL:', window.location.href);
+
         // Check for errors in URL
         const queryParams = new URLSearchParams(window.location.search);
-        const error_code = queryParams.get('error');
-        const error_description = queryParams.get('error_description');
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const error_code = queryParams.get('error') || hashParams.get('error');
+        const error_description = queryParams.get('error_description') || hashParams.get('error_description');
+
+        console.log('[OAuth Callback] URL params:', Object.fromEntries(queryParams.entries()));
+        console.log('[OAuth Callback] Hash params:', Object.fromEntries(hashParams.entries()));
 
         if (error_code) {
-          console.error('OAuth error:', error_code, error_description);
+          console.error('[OAuth Callback] OAuth error:', error_code, error_description);
           setError(error_description || 'Authentication failed. Please try again.');
-          setTimeout(() => {
+          redirectTimer = setTimeout(() => {
             if (!redirected) {
               redirected = true;
               window.location.href = '/login?error=auth_failed';
@@ -30,44 +38,66 @@ export default function AuthCallback() {
           return;
         }
 
-        // Listen for auth state changes for instant redirect
-        authSubscription = supabase.auth.onAuthStateChange((event, session) => {
-          console.log('Auth event in callback:', event);
-          
-          if (event === 'SIGNED_IN' && session?.user && !redirected) {
-            console.log('Auth successful! User:', session.user.email);
-            console.log('Redirecting to marketplace...');
+        // Exchange the OAuth code for a session
+        console.log('[OAuth Callback] Exchanging code for session...');
+        const { data: exchangeData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(window.location.href);
+
+        if (exchangeError) {
+          console.error('[OAuth Callback] Exchange error:', exchangeError);
+        } else if (exchangeData?.session) {
+          console.log('[OAuth Callback] Successfully exchanged code for session!');
+          console.log('[OAuth Callback] User:', exchangeData.session.user.email);
+
+          if (!redirected) {
             redirected = true;
+            console.log('[OAuth Callback] Redirecting to marketplace...');
+            window.location.href = '/marketplace';
+            return;
+          }
+        }
+
+        // Listen for auth state changes as backup
+        authSubscription = supabase.auth.onAuthStateChange((event, session) => {
+          console.log('[OAuth Callback] Auth event:', event);
+          console.log('[OAuth Callback] Session:', session ? 'exists' : 'null');
+
+          if (event === 'SIGNED_IN' && session?.user && !redirected) {
+            console.log('[OAuth Callback] SIGNED_IN event! User:', session.user.email);
+            redirected = true;
+            if (redirectTimer) clearTimeout(redirectTimer);
             window.location.href = '/marketplace';
           }
         });
 
         // Also check immediately if we already have a session
+        console.log('[OAuth Callback] Checking for existing session...');
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
         if (sessionError) {
-          console.error('Session error:', sessionError);
+          console.error('[OAuth Callback] Session error:', sessionError);
         }
 
         if (session?.user && !redirected) {
-          console.log('Session already exists! User:', session.user.email);
-          console.log('Redirecting to marketplace...');
+          console.log('[OAuth Callback] Session found! User:', session.user.email);
           redirected = true;
+          if (redirectTimer) clearTimeout(redirectTimer);
           window.location.href = '/marketplace';
+          return;
         }
 
-        // Fallback: if no session after 3 seconds, redirect to login
-        setTimeout(() => {
+        // Fallback: if no session after 5 seconds, redirect to login
+        console.log('[OAuth Callback] Setting 5s timeout fallback...');
+        redirectTimer = setTimeout(() => {
           if (!redirected) {
-            console.log('Timeout: No session found, redirecting to login');
+            console.warn('[OAuth Callback] Timeout: No session found after 5s, redirecting to login');
             redirected = true;
-            window.location.href = '/login';
+            window.location.href = '/login?error=timeout';
           }
-        }, 3000);
+        }, 5000);
       } catch (err) {
-        console.error('Callback error:', err);
+        console.error('[OAuth Callback] Unexpected error:', err);
         setError('An unexpected error occurred.');
-        setTimeout(() => {
+        redirectTimer = setTimeout(() => {
           if (!redirected) {
             redirected = true;
             window.location.href = '/login?error=auth_failed';
@@ -84,6 +114,7 @@ export default function AuthCallback() {
     // Cleanup
     return () => {
       redirected = true;
+      if (redirectTimer) clearTimeout(redirectTimer);
       if (authSubscription?.data?.subscription) {
         authSubscription.data.subscription.unsubscribe();
       }
