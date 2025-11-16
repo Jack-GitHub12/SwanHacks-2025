@@ -125,6 +125,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           };
 
           const savedProfile = getDemoProfile(defaultDemoProfile);
+          console.log('[AuthContext] Demo profile loaded:', savedProfile);
 
           // Use flushSync to ensure state updates happen immediately and synchronously
           flushSync(() => {
@@ -133,7 +134,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setProfile(savedProfile);
           });
 
-          console.log('[AuthContext] Demo user set synchronously, user:', mockUser.email);
+          console.log('[AuthContext] Demo user set synchronously');
+          console.log('[AuthContext] User:', mockUser.email);
+          console.log('[AuthContext] Profile:', savedProfile);
 
           // Small delay to ensure everything is ready
           await new Promise(resolve => setTimeout(resolve, 50));
@@ -145,6 +148,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           });
 
           console.log('[AuthContext] Demo auth initialization complete');
+          console.log('[AuthContext] Final state - user:', mockUser.email, 'profile:', savedProfile?.display_name);
           return;
         }
 

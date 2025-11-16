@@ -135,17 +135,22 @@ export default function Discussions() {
 
   const loadDiscussions = async () => {
     try {
+      console.log('[Discussions] Loading discussions...');
+      console.log('[Discussions] isDemoMode():', isDemoMode());
+
       // INSTANTLY show demo data from session storage (includes user-created discussions!)
       const sessionDiscussions = getDemoDiscussions(DEMO_DISCUSSIONS);
+      console.log('[Discussions] Loaded from storage:', sessionDiscussions.length, 'discussions');
 
       // Initialize localStorage with demo data if empty
       if (typeof window !== 'undefined' && !localStorage.getItem('bookster_demo_discussions')) {
+        console.log('[Discussions] Initializing localStorage with demo data');
         localStorage.setItem('bookster_demo_discussions', JSON.stringify(DEMO_DISCUSSIONS));
       }
 
       setDiscussions(sessionDiscussions);
       setLoading(false);
-      console.log('Showing demo discussions instantly:', sessionDiscussions.length);
+      console.log('[Discussions] Set discussions state and loading=false');
 
       // Then try to load real data in background
       if (isDemoMode()) {
@@ -180,10 +185,15 @@ export default function Discussions() {
   };
 
   const filterDiscussions = () => {
+    console.log('[Discussions] Filtering', discussions.length, 'discussions');
+    console.log('[Discussions] Selected category:', selectedCategory);
+    console.log('[Discussions] Search query:', searchQuery);
+
     let filtered = [...discussions];
 
     if (selectedCategory) {
       filtered = filtered.filter(d => d.category === selectedCategory);
+      console.log('[Discussions] After category filter:', filtered.length);
     }
 
     if (searchQuery) {
@@ -192,8 +202,10 @@ export default function Discussions() {
         d.title.toLowerCase().includes(query) ||
         d.content.toLowerCase().includes(query)
       );
+      console.log('[Discussions] After search filter:', filtered.length);
     }
 
+    console.log('[Discussions] Final filtered count:', filtered.length);
     setFilteredDiscussions(filtered);
   };
 

@@ -15,6 +15,12 @@ const Header: React.FC<HeaderProps> = ({ subtitle = 'Your Campus Textbook Market
   const { user, profile, signOut } = useAuth();
   const [showDropdown, setShowDropdown] = useState(false);
 
+  // Debug logging
+  React.useEffect(() => {
+    console.log('[Header] User:', user?.email);
+    console.log('[Header] Profile:', profile);
+  }, [user, profile]);
+
   const handleSignOut = async () => {
     await signOut();
     window.location.href = '/landing';
