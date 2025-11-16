@@ -41,13 +41,19 @@ export default function Login() {
         console.log('Demo login successful');
 
         // Store demo flag in localStorage
-        localStorage.setItem('isDemoUser', 'true');
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('isDemoUser', 'true');
 
-        // Brief wait for consistency
-        await new Promise(resolve => setTimeout(resolve, 300));
+          // Clear any existing auth data to ensure clean slate
+          localStorage.removeItem('sb-auth-token');
 
-        // Redirect to marketplace page using window.location for full page reload
-        window.location.href = '/marketplace';
+          // Force a full page reload to ensure AuthContext picks up the demo flag
+          // Keep loading state active until redirect completes
+          setTimeout(() => {
+            window.location.href = '/marketplace';
+          }, 500);
+        }
+        // Don't set isLoading to false - keep spinner active until redirect
         return;
       }
 

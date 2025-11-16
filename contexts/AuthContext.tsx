@@ -109,6 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
           if (!mounted) return;
 
+          // Set user and session first
           setSession(mockSession);
           setUser(mockUser);
 
@@ -124,6 +125,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
           const savedProfile = getDemoProfile(defaultDemoProfile);
           setProfile(savedProfile);
+
+          // Small delay to ensure state updates are complete
+          await new Promise(resolve => setTimeout(resolve, 50));
 
           setLoading(false);
           return;
