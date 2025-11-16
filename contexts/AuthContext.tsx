@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { flushSync } from 'react-dom';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getDemoProfile } from '@/lib/demoStorage';
@@ -88,7 +89,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Check for demo user
         const isDemoUser = typeof window !== 'undefined' && localStorage.getItem('isDemoUser') === 'true';
 
+        console.log('[AuthContext] Initializing auth, isDemoUser:', isDemoUser);
+
         if (isDemoUser) {
+          console.log('[AuthContext] Setting up demo user');
+
           // Create a mock user and session for demo
           const mockUser = {
             id: 'demo-user-id',
@@ -109,10 +114,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
           if (!mounted) return;
 
-          // Set user and session first
-          setSession(mockSession);
-          setUser(mockUser);
-
           // Load demo profile from localStorage
           const defaultDemoProfile = {
             id: 'demo-user-id',
@@ -124,12 +125,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           };
 
           const savedProfile = getDemoProfile(defaultDemoProfile);
-          setProfile(savedProfile);
 
-          // Small delay to ensure state updates are complete
+          // Use flushSync to ensure state updates happen immediately and synchronously
+          flushSync(() => {
+            setSession(mockSession);
+            setUser(mockUser);
+            setProfile(savedProfile);
+          });
+
+          console.log('[AuthContext] Demo user set synchronously, user:', mockUser.email);
+
+          // Small delay to ensure everything is ready
           await new Promise(resolve => setTimeout(resolve, 50));
 
-          setLoading(false);
+          console.log('[AuthContext] Setting loading to false');
+
+          flushSync(() => {
+            setLoading(false);
+          });
+
+          console.log('[AuthContext] Demo auth initialization complete');
           return;
         }
 

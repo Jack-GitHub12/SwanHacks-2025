@@ -38,18 +38,22 @@ export default function Login() {
     try {
       // Check for demo account
       if (email === 'demo@iastate.edu' && password === 'password') {
-        console.log('Demo login successful');
+        console.log('[Login] Demo credentials detected');
 
         // Store demo flag in localStorage
         if (typeof window !== 'undefined') {
+          console.log('[Login] Setting isDemoUser flag in localStorage');
           localStorage.setItem('isDemoUser', 'true');
 
           // Clear any existing auth data to ensure clean slate
           localStorage.removeItem('sb-auth-token');
 
+          console.log('[Login] Waiting 500ms before redirect...');
+
           // Force a full page reload to ensure AuthContext picks up the demo flag
           // Keep loading state active until redirect completes
           setTimeout(() => {
+            console.log('[Login] Redirecting to marketplace');
             window.location.href = '/marketplace';
           }, 500);
         }

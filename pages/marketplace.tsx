@@ -35,7 +35,10 @@ export default function Home() {
 
   // Redirect to login if not authenticated
   useEffect(() => {
+    console.log('[Marketplace] Auth state:', { authLoading, user: user?.email, hasUser: !!user });
+
     if (!authLoading && !user) {
+      console.log('[Marketplace] No user and not loading, redirecting to login');
       // Use replace to avoid adding to browser history
       router.replace('/login');
     }
