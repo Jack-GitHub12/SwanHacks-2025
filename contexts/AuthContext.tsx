@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { flushSync } from 'react-dom';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getDemoProfile } from '@/lib/demoStorage';
@@ -130,14 +129,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const savedProfile = getDemoProfile(defaultDemoProfile);
           console.log('[AuthContext] Demo profile loaded:', savedProfile);
 
-          // Use flushSync to ensure state updates happen immediately and synchronously
-          flushSync(() => {
-            setSession(mockSession);
-            setUser(mockUser);
-            setProfile(savedProfile);
-          });
+          // Set state without flushSync to avoid warnings
+          setSession(mockSession);
+          setUser(mockUser);
+          setProfile(savedProfile);
 
-          console.log('[AuthContext] Demo user set synchronously');
+          console.log('[AuthContext] Demo user set');
           console.log('[AuthContext] User:', mockUser.email);
           console.log('[AuthContext] Profile:', savedProfile);
 
@@ -145,10 +142,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           await new Promise(resolve => setTimeout(resolve, 50));
 
           console.log('[AuthContext] Setting loading to false');
-
-          flushSync(() => {
-            setLoading(false);
-          });
+          setLoading(false);
 
           console.log('[AuthContext] Demo auth initialization complete');
           console.log('[AuthContext] Final state - user:', mockUser.email, 'profile:', savedProfile?.display_name);

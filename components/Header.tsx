@@ -17,8 +17,8 @@ const Header: React.FC<HeaderProps> = ({ subtitle = 'Your Campus Textbook Market
 
   // Debug logging
   React.useEffect(() => {
-    console.log('[Header] User:', user?.email);
-    console.log('[Header] Profile:', profile);
+    console.log('[Header] Render state - User:', user?.email, 'Profile:', profile?.display_name);
+    console.log('[Header] Should show profile menu:', !!user);
   }, [user, profile]);
 
   const handleSignOut = async () => {

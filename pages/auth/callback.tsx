@@ -17,6 +17,10 @@ export default function AuthCallback() {
         console.log('[OAuth Callback] Starting callback handler');
         console.log('[OAuth Callback] Current URL:', window.location.href);
 
+        // IMPORTANT: Clear demo flag since this is OAuth login, not demo login
+        console.log('[OAuth Callback] Clearing demo user flag for OAuth login');
+        localStorage.removeItem('isDemoUser');
+
         // Check for errors in URL
         const queryParams = new URLSearchParams(window.location.search);
         const hashParams = new URLSearchParams(window.location.hash.substring(1));
@@ -47,13 +51,20 @@ export default function AuthCallback() {
         } else if (exchangeData?.session) {
           console.log('[OAuth Callback] Successfully exchanged code for session!');
           console.log('[OAuth Callback] User:', exchangeData.session.user.email);
+          console.log('[OAuth Callback] Clearing demo profile data');
+          localStorage.removeItem('bookster_demo_profile');
 
           if (!redirected) {
             redirected = true;
+            console.log('[OAuth Callback] Waiting 500ms for session to persist...');
+            // Brief wait to ensure session is fully stored
+            await new Promise(resolve => setTimeout(resolve, 500));
             console.log('[OAuth Callback] Redirecting to marketplace...');
             window.location.href = '/marketplace';
             return;
           }
+        } else {
+          console.log('[OAuth Callback] No session returned from exchange, continuing to fallback methods');
         }
 
         // Listen for auth state changes as backup
