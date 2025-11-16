@@ -60,13 +60,13 @@ export default function Home() {
   const loadListings = async () => {
     try {
       if (DEMO_MODE) {
-        // Load from session storage (includes user-created listings!)
-        const sessionListings = getDemoListings(DEMO_LISTINGS);
-
-        // If localStorage is empty, initialize it with demo data
+        // If localStorage is empty, initialize it with demo data FIRST
         if (typeof window !== 'undefined' && !localStorage.getItem('bookster_demo_listings')) {
           localStorage.setItem('bookster_demo_listings', JSON.stringify(DEMO_LISTINGS));
         }
+
+        // Load from session storage (includes user-created listings!)
+        const sessionListings = getDemoListings(DEMO_LISTINGS);
 
         setListings(sessionListings);
         setLoading(false);

@@ -209,6 +209,9 @@ export default function Profile() {
         // Save to session storage so it persists
         setDemoProfile(formData);
 
+        // Refresh the profile in AuthContext to update navbar avatar
+        await refreshProfile();
+
         setMessage('Profile updated successfully!');
         setTimeout(() => setMessage(''), 3000);
         setIsSaving(false);

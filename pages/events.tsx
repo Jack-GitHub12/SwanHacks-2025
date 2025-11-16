@@ -12,7 +12,8 @@ import { supabase, DEMO_MODE } from '@/lib/supabase';
 import { generateGoogleCalendarLink, formatEventDateTime, createEventDates } from '@/lib/calendar';
 import { formatDate } from '@/lib/utils';
 import { sortEvents, getEventTags, getTagColor, formatEventDate } from '@/lib/eventUtils';
-import { getDemoDiscussions } from '@/lib/demoStorage';
+import { getDemoDiscussions, setDemoDiscussions } from '@/lib/demoStorage';
+import { DEMO_DISCUSSIONS } from './discussions';
 import type { Discussion, EventSortOption } from '@/types/discussions';
 
 // Demo events data
@@ -342,8 +343,16 @@ export default function Events() {
 
   const loadEvents = async () => {
     try {
+      // Initialize localStorage with ALL demo data (events + discussions) if empty
+      if (typeof window !== 'undefined' && !localStorage.getItem('bookster_demo_discussions')) {
+        // Merge events and discussions into one storage
+        const allDemoData = [...DEMO_EVENTS, ...DEMO_DISCUSSIONS];
+        setDemoDiscussions(allDemoData);
+      }
+
       // INSTANTLY show demo events from session storage (includes user-created events!)
-      const sessionEvents = getDemoDiscussions(DEMO_EVENTS).filter(d => d.category === 'events' || d.event_date);
+      const allData = getDemoDiscussions([...DEMO_EVENTS, ...DEMO_DISCUSSIONS]);
+      const sessionEvents = allData.filter(d => d.category === 'events' || d.event_date);
       setEvents(sessionEvents);
       setLoading(false);
       console.log('Showing demo events instantly:', sessionEvents.length);

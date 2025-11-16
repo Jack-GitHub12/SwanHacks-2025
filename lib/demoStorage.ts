@@ -80,6 +80,11 @@ export const addDemoDiscussion = (newDiscussion: any, defaultDiscussions: any[])
   return updated;
 };
 
+export const getDemoDiscussionById = (id: string, defaultDiscussions: any[]) => {
+  const discussions = getDemoDiscussions(defaultDiscussions);
+  return discussions.find(d => d.id === id) || null;
+};
+
 // Reply functions
 export const getDemoReplies = (discussionId: string, defaultReplies: any[]) => {
   const allReplies = getDemoData<Record<string, any[]>>(STORAGE_KEYS.REPLIES, {});

@@ -11,7 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase, DEMO_MODE } from '@/lib/supabase';
 import { getCategoryColor, getCategoryName } from '@/lib/discussions';
 import { formatDate, generateGoogleCalendarLink } from '@/lib/utils';
-import { getDemoReplies, addDemoReply } from '@/lib/demoStorage';
+import { getDemoReplies, addDemoReply, getDemoDiscussionById, getDemoDiscussions } from '@/lib/demoStorage';
 import type { Discussion, DiscussionReply } from '@/types/discussions';
 
 // Demo data for testing
@@ -95,9 +95,16 @@ export default function DiscussionDetail() {
   const loadDiscussion = async () => {
     try {
       if (DEMO_MODE) {
-        setDiscussion(DEMO_DISCUSSION);
-        // Increment view count in demo mode (just for UI)
-        setDiscussion(prev => prev ? { ...prev, views: prev.views + 1 } : null);
+        // Load all discussions/events from localStorage (includes both from discussions.tsx and events.tsx)
+        const allDemoData = getDemoDiscussions([DEMO_DISCUSSION]);
+        const foundDiscussion = getDemoDiscussionById(id as string, allDemoData);
+
+        if (foundDiscussion) {
+          setDiscussion({...foundDiscussion, views: (foundDiscussion.views || 0) + 1});
+        } else {
+          // Fallback to default
+          setDiscussion(DEMO_DISCUSSION);
+        }
       } else {
         const { data, error } = await supabase
           .from('discussions_with_user')

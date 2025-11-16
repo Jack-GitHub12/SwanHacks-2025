@@ -14,7 +14,7 @@ import { DISCUSSION_CATEGORIES } from '@/lib/discussions';
 import type { Discussion } from '@/types/discussions';
 
 // Demo discussions data
-const DEMO_DISCUSSIONS: Discussion[] = [
+export const DEMO_DISCUSSIONS: Discussion[] = [
   {
     id: '1',
     created_at: new Date(Date.now() - 3600000).toISOString(),
@@ -134,6 +134,12 @@ export default function Discussions() {
     try {
       // INSTANTLY show demo data from session storage (includes user-created discussions!)
       const sessionDiscussions = getDemoDiscussions(DEMO_DISCUSSIONS);
+
+      // Initialize localStorage with demo data if empty
+      if (typeof window !== 'undefined' && !localStorage.getItem('bookster_demo_discussions')) {
+        localStorage.setItem('bookster_demo_discussions', JSON.stringify(DEMO_DISCUSSIONS));
+      }
+
       setDiscussions(sessionDiscussions);
       setLoading(false);
       console.log('Showing demo discussions instantly:', sessionDiscussions.length);
