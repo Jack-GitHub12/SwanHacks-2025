@@ -92,6 +92,11 @@ export default function AuthCallback() {
           console.log('[OAuth Callback] Session found! User:', session.user.email);
           redirected = true;
           if (redirectTimer) clearTimeout(redirectTimer);
+
+          // Use a slightly longer delay to ensure everything is ready
+          console.log('[OAuth Callback] Waiting 300ms before redirect...');
+          await new Promise(resolve => setTimeout(resolve, 300));
+          console.log('[OAuth Callback] Redirecting now...');
           window.location.href = '/marketplace';
           return;
         }

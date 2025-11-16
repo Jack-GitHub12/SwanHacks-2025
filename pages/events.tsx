@@ -415,13 +415,22 @@ export default function Events() {
   };
 
   const handleAddToCalendar = (event: Discussion) => {
-    if (!event.event_date || !event.event_time) return;
+    if (!event.event_date || !event.event_time) {
+      console.warn('[Events] Missing date/time for event:', event.title);
+      return;
+    }
+
+    console.log('[Events] Creating calendar event for:', event.title);
+    console.log('[Events] Date:', event.event_date, 'Time:', event.event_time, 'End:', event.event_end_time);
+    console.log('[Events] Location:', event.event_location);
 
     const { startDate, endDate } = createEventDates(
       event.event_date,
       event.event_time,
       event.event_end_time
     );
+
+    console.log('[Events] Parsed dates - Start:', startDate.toISOString(), 'End:', endDate.toISOString());
 
     const calendarLink = generateGoogleCalendarLink({
       title: event.title,
@@ -431,6 +440,7 @@ export default function Events() {
       endDate,
     });
 
+    console.log('[Events] Opening Google Calendar with link:', calendarLink);
     window.open(calendarLink, '_blank');
   };
 

@@ -59,13 +59,21 @@ export default function Profile() {
         major: '',
         graduation_year: undefined,
       };
-      
+
       if (isDemoMode()) {
-        // Load from session storage if exists
-        const savedProfile = getDemoProfile(defaultProfile);
+        // For demo mode, load from session storage with better defaults
+        const demoDefaultProfile = {
+          username: 'demo_user',
+          display_name: 'Demo User',
+          avatar_url: '',
+          bio: 'This is a demo account for testing Bookster features!',
+          major: 'Computer Science',
+          graduation_year: 2026,
+        };
+        const savedProfile = getDemoProfile(demoDefaultProfile);
+        console.log('[Profile] Loading demo profile:', savedProfile);
         setFormData(savedProfile);
         setIsLoading(false);
-        console.log('Demo mode enabled - loaded from session storage');
         return;
       }
       
@@ -151,7 +159,13 @@ export default function Profile() {
           // Save to localStorage so it persists across sessions!
           setDemoProfile(updatedFormData);
           console.log('[Profile] Profile saved with new avatar');
-          setMessage('Image uploaded successfully! Click "Save Profile" to persist changes.');
+
+          // Immediately refresh the profile in AuthContext to update navbar
+          refreshProfile().then(() => {
+            console.log('[Profile] Navbar avatar should be updated now');
+          });
+
+          setMessage('Image uploaded successfully!');
           setSelectedFile(null);
           setPreviewUrl('');
           setIsUploading(false);
