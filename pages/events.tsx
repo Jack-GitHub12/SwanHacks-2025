@@ -8,7 +8,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import VoteButtons from '@/components/VoteButtons';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase, DEMO_MODE } from '@/lib/supabase';
+import { supabase, isDemoMode } from '@/lib/supabase';
 import { generateGoogleCalendarLink, formatEventDateTime, createEventDates } from '@/lib/calendar';
 import { formatDate } from '@/lib/utils';
 import { sortEvents, getEventTags, getTagColor, formatEventDate } from '@/lib/eventUtils';
@@ -361,8 +361,8 @@ export default function Events() {
       console.log('Showing demo events instantly:', sessionEvents.length);
 
       // Then try to load real data in background
-      if (DEMO_MODE) {
-        console.log('DEMO_MODE enabled - keeping session demo data');
+      if (isDemoMode()) {
+        console.log('isDemoMode() enabled - keeping session demo data');
         return;
       }
 

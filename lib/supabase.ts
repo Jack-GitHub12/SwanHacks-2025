@@ -5,6 +5,13 @@ import type { Listing } from '@/types';
 // Demo mode configuration
 export const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === 'true';
 
+// Check if current user is in demo mode (either globally or logged in as demo user)
+export const isDemoMode = (): boolean => {
+  if (DEMO_MODE) return true;
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem('isDemoUser') === 'true';
+};
+
 // Supabase credentials
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';

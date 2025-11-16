@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import ListingCard from '@/components/ListingCard';
 import CategoryFilter from '@/components/CategoryFilter';
-import { supabase, DEMO_MODE, DEMO_LISTINGS } from '@/lib/supabase';
+import { supabase, isDemoMode, DEMO_LISTINGS } from '@/lib/supabase';
 import { getDemoListings, deleteDemoListing } from '@/lib/demoStorage';
 import { useAuth } from '@/contexts/AuthContext';
 import { getCoursesByDepartment } from '@/lib/categories';
@@ -54,12 +54,12 @@ export default function Browse() {
 
   const loadListings = async () => {
     try {
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         // Load from session storage (includes user-created listings!)
         const sessionListings = getDemoListings(DEMO_LISTINGS);
         setListings(sessionListings);
         setLoading(false);
-        console.log('DEMO_MODE enabled - loaded from session storage:', sessionListings.length, 'listings');
+        console.log('isDemoMode() enabled - loaded from session storage:', sessionListings.length, 'listings');
         return;
       }
       
@@ -178,7 +178,7 @@ export default function Browse() {
     }
 
     try {
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         // Delete from session storage so it stays deleted
         const updatedListings = deleteDemoListing(listingId, DEMO_LISTINGS);
         setListings(updatedListings);

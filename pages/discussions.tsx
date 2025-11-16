@@ -8,7 +8,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import DiscussionCard from '@/components/DiscussionCard';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase, DEMO_MODE } from '@/lib/supabase';
+import { supabase, isDemoMode } from '@/lib/supabase';
 import { getDemoDiscussions } from '@/lib/demoStorage';
 import { DISCUSSION_CATEGORIES } from '@/lib/discussions';
 import type { Discussion } from '@/types/discussions';
@@ -148,8 +148,8 @@ export default function Discussions() {
       console.log('Showing demo discussions instantly:', sessionDiscussions.length);
 
       // Then try to load real data in background
-      if (DEMO_MODE) {
-        console.log('DEMO_MODE enabled - keeping session demo data');
+      if (isDemoMode()) {
+        console.log('Demo mode enabled - keeping session demo data');
         return;
       }
 

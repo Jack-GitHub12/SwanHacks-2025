@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import Header from '@/components/Header';
 import ListingCard from '@/components/ListingCard';
 import CategoryFilter from '@/components/CategoryFilter';
-import { supabase, DEMO_MODE, DEMO_LISTINGS } from '@/lib/supabase';
+import { supabase, isDemoMode, DEMO_LISTINGS } from '@/lib/supabase';
 import { getDemoListings, deleteDemoListing } from '@/lib/demoStorage';
 import { useAuth } from '@/contexts/AuthContext';
 import { getCoursesByDepartment } from '@/lib/categories';
@@ -65,7 +65,7 @@ export default function Home() {
 
   const loadListings = async () => {
     try {
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         // If localStorage is empty, initialize it with demo data FIRST
         if (typeof window !== 'undefined' && !localStorage.getItem('bookster_demo_listings')) {
           localStorage.setItem('bookster_demo_listings', JSON.stringify(DEMO_LISTINGS));
@@ -76,7 +76,7 @@ export default function Home() {
 
         setListings(sessionListings);
         setLoading(false);
-        console.log('DEMO_MODE enabled - loaded from session storage:', sessionListings.length, 'listings');
+        console.log('Demo mode enabled - loaded from session storage:', sessionListings.length, 'listings');
         return;
       }
       
@@ -195,7 +195,7 @@ export default function Home() {
     }
 
     try {
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         // Delete from session storage so it stays deleted
         const updatedListings = deleteDemoListing(listingId, DEMO_LISTINGS);
         setListings(updatedListings);

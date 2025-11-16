@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Flex, Text } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
-import { supabase, DEMO_MODE } from '@/lib/supabase';
+import { supabase, isDemoMode } from '@/lib/supabase';
 import { getDemoVote, setDemoVote } from '@/lib/demoStorage';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -27,7 +27,7 @@ const VoteButtons: React.FC<VoteButtonsProps> = ({
 
   useEffect(() => {
     if (user) {
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         // Load vote from session storage
         const savedVote = getDemoVote(discussionId);
         setUserVote(savedVote as 'up' | 'down' | null);
@@ -62,7 +62,7 @@ const VoteButtons: React.FC<VoteButtonsProps> = ({
     setIsVoting(true);
 
     try {
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         // Demo mode - update UI and save to session storage
         if (userVote === voteType) {
           // Remove vote

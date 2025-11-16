@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { supabase, DEMO_MODE, COURSE_CODES, DEMO_LISTINGS } from '@/lib/supabase';
+import { supabase, isDemoMode, COURSE_CODES, DEMO_LISTINGS } from '@/lib/supabase';
 import { isValidCourseCode, isValidContact, formatCourseCode } from '@/lib/utils';
 import { getDemoListings, updateDemoListing } from '@/lib/demoStorage';
 import { useAuth } from '@/contexts/AuthContext';
@@ -43,7 +43,7 @@ export default function EditListing() {
 
   const loadListing = async () => {
     try {
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         // Load from demo storage
         const listings = getDemoListings(DEMO_LISTINGS);
         const listing = listings.find(l => l.id === id);
@@ -188,7 +188,7 @@ export default function EditListing() {
         throw new Error('You must be logged in to edit listings');
       }
 
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         // Update in demo storage

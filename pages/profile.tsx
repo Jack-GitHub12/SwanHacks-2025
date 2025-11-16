@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase, DEMO_MODE } from '@/lib/supabase';
+import { supabase, isDemoMode } from '@/lib/supabase';
 import { getDemoProfile, setDemoProfile } from '@/lib/demoStorage';
 import type { UserProfile, UpdateProfileData } from '@/types/profile';
 
@@ -60,12 +60,12 @@ export default function Profile() {
         graduation_year: undefined,
       };
       
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         // Load from session storage if exists
         const savedProfile = getDemoProfile(defaultProfile);
         setFormData(savedProfile);
         setIsLoading(false);
-        console.log('DEMO_MODE enabled - loaded from session storage');
+        console.log('Demo mode enabled - loaded from session storage');
         return;
       }
       
@@ -136,7 +136,7 @@ export default function Profile() {
     setError('');
 
     try {
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         // Convert image to base64 so it persists in localStorage
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -206,7 +206,7 @@ export default function Profile() {
         throw new Error('Not authenticated');
       }
 
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         // Save to session storage so it persists

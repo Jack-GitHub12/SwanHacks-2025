@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase, DEMO_MODE } from '@/lib/supabase';
+import { supabase, isDemoMode } from '@/lib/supabase';
 import { addDemoDiscussion } from '@/lib/demoStorage';
 import { DISCUSSION_CATEGORIES } from '@/lib/discussions';
 import type { CreateDiscussionData } from '@/types/discussions';
@@ -30,7 +30,7 @@ export default function NewDiscussion() {
     e.preventDefault();
     setError('');
 
-    if (!user && !DEMO_MODE) {
+    if (!user && !isDemoMode()) {
       setError('You must be logged in to create a discussion');
       return;
     }
@@ -48,7 +48,7 @@ export default function NewDiscussion() {
     setIsSubmitting(true);
 
     try {
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         // Create new discussion and save to session storage

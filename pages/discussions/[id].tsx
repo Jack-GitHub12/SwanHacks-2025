@@ -8,7 +8,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import VoteButtons from '@/components/VoteButtons';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase, DEMO_MODE } from '@/lib/supabase';
+import { supabase, isDemoMode } from '@/lib/supabase';
 import { getCategoryColor, getCategoryName } from '@/lib/discussions';
 import { formatDate, generateGoogleCalendarLink } from '@/lib/utils';
 import { getDemoReplies, addDemoReply, getDemoDiscussionById, getDemoDiscussions } from '@/lib/demoStorage';
@@ -97,7 +97,7 @@ export default function DiscussionDetail() {
 
   const loadDiscussion = async () => {
     try {
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         // Load all discussions/events from localStorage (includes both from discussions.tsx and events.tsx)
         const allDemoData = getDemoDiscussions([DEMO_DISCUSSION]);
         const foundDiscussion = getDemoDiscussionById(id as string, allDemoData);
@@ -131,7 +131,7 @@ export default function DiscussionDetail() {
 
   const loadReplies = async () => {
     try {
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         // Load replies from session storage (persists during session)
         const sessionReplies = getDemoReplies(id as string, DEMO_REPLIES);
         setReplies(sessionReplies);
@@ -159,7 +159,7 @@ export default function DiscussionDetail() {
     e.preventDefault();
     setError('');
 
-    if (!user && !DEMO_MODE) {
+    if (!user && !isDemoMode()) {
       setError('You must be logged in to reply');
       return;
     }
@@ -172,7 +172,7 @@ export default function DiscussionDetail() {
     setIsSubmitting(true);
 
     try {
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         await new Promise(resolve => setTimeout(resolve, 500));
         const newReply: DiscussionReply = {
           id: `demo-${Date.now()}`,
@@ -234,7 +234,7 @@ export default function DiscussionDetail() {
     if (!confirm('Are you sure you want to delete this reply?')) return;
 
     try {
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         setReplies(replies.filter(r => r.id !== replyId));
         // Update discussion reply count in demo mode
         if (discussion) {
@@ -581,7 +581,7 @@ export default function DiscussionDetail() {
                             Reply
                           </motion.button>
 
-                          {(reply.user_id === user?.id || DEMO_MODE) && (
+                          {(reply.user_id === user?.id || isDemoMode()) && (
                             <motion.button
                               onClick={() => handleDeleteReply(reply.id)}
                               className="text-xs px-3 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition-colors"

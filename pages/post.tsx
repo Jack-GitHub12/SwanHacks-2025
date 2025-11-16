@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import SuccessModal from '@/components/SuccessModal';
-import { supabase, DEMO_MODE, COURSE_CODES, DEMO_LISTINGS } from '@/lib/supabase';
+import { supabase, isDemoMode, COURSE_CODES, DEMO_LISTINGS } from '@/lib/supabase';
 import { isValidCourseCode, isValidContact, formatCourseCode } from '@/lib/utils';
 import { addDemoListing } from '@/lib/demoStorage';
 import { useAuth } from '@/contexts/AuthContext';
@@ -123,11 +123,11 @@ export default function Post() {
 
     try {
       // Security: Ensure user is authenticated
-      if (!user && !DEMO_MODE) {
+      if (!user && !isDemoMode()) {
         throw new Error('You must be logged in to post a listing');
       }
 
-      if (DEMO_MODE) {
+      if (isDemoMode()) {
         const listingData: Listing = {
           id: `demo-${Date.now()}`,
           user_id: user?.id,
