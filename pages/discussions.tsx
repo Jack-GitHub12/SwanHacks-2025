@@ -120,7 +120,21 @@ export default function Discussions() {
     }
   }, [user, authLoading, router]);
 
-  // Load discussions
+  // Initialize discussions on mount if in demo mode
+  useEffect(() => {
+    // Check immediately if we're in demo mode and initialize
+    if (typeof window !== 'undefined' && (localStorage.getItem('isDemoUser') === 'true' || process.env.NEXT_PUBLIC_DEMO_MODE === 'true')) {
+      console.log('[Discussions] Demo mode detected on mount, initializing data');
+      if (discussions.length === 0) {
+        const demoData = getDemoDiscussions(DEMO_DISCUSSIONS);
+        console.log('[Discussions] Setting initial demo data:', demoData.length);
+        setDiscussions(demoData);
+        setLoading(false);
+      }
+    }
+  }, []);
+
+  // Load discussions when user is available
   useEffect(() => {
     if (user) {
       loadDiscussions();
