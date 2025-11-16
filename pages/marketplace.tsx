@@ -37,7 +37,10 @@ export default function Home() {
   useEffect(() => {
     console.log('[Marketplace] Auth state:', { authLoading, user: user?.email, hasUser: !!user });
 
-    if (!authLoading && !user) {
+    // Check if we're in demo mode to avoid premature redirects
+    const isDemoUser = typeof window !== 'undefined' && localStorage.getItem('isDemoUser') === 'true';
+
+    if (!authLoading && !user && !isDemoUser) {
       console.log('[Marketplace] No user and not loading, redirecting to login');
       // Use replace to avoid adding to browser history
       router.replace('/login');

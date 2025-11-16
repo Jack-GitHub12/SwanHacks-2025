@@ -31,7 +31,10 @@ export default function Profile() {
   const [previewUrl, setPreviewUrl] = useState<string>('');
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    // Check if we're in demo mode to avoid premature redirects
+    const isDemoUser = typeof window !== 'undefined' && localStorage.getItem('isDemoUser') === 'true';
+
+    if (!authLoading && !user && !isDemoUser) {
       router.push('/login');
     }
   }, [user, authLoading, router]);
