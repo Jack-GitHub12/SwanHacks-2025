@@ -334,9 +334,17 @@ export default function Events() {
     if (typeof window !== 'undefined' && (localStorage.getItem('isDemoUser') === 'true' || process.env.NEXT_PUBLIC_DEMO_MODE === 'true')) {
       console.log('[Events] Demo mode detected on mount, initializing data');
       if (events.length === 0) {
+        // Initialize localStorage if needed
+        if (!localStorage.getItem('bookster_demo_discussions')) {
+          const allDemoData = [...DEMO_EVENTS, ...DEMO_DISCUSSIONS];
+          localStorage.setItem('bookster_demo_discussions', JSON.stringify(allDemoData));
+        }
+
         const allData = getDemoDiscussions([...DEMO_EVENTS, ...DEMO_DISCUSSIONS]);
         const demoEvents = allData.filter(d => d.category === 'events' || d.event_date);
-        console.log('[Events] Setting initial demo data:', demoEvents.length);
+        console.log('[Events] All data from storage:', allData.length);
+        console.log('[Events] Filtered events:', demoEvents.length);
+        console.log('[Events] Events data:', demoEvents.map(e => ({ id: e.id, title: e.title })));
         setEvents(demoEvents);
         setLoading(false);
       }

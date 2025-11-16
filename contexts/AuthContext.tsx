@@ -178,19 +178,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state change:', event, session?.user?.email);
+      console.log('[AuthContext] Auth state change:', event, session?.user?.email);
 
       if (!mounted) return;
 
+      // IMPORTANT: Don't override demo user with null session
+      const isDemoUser = typeof window !== 'undefined' && localStorage.getItem('isDemoUser') === 'true';
+
+      if (isDemoUser && !session) {
+        console.log('[AuthContext] Ignoring auth change - demo user active');
+        return;
+      }
+
+      console.log('[AuthContext] Applying auth state change');
       setSession(session);
       setUser(session?.user ?? null);
-      
+
       if (session?.user?.id) {
         await loadProfile(session.user.id);
       } else {
         setProfile(null);
       }
-      
+
       setLoading(false);
     });
 
